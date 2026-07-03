@@ -1,0 +1,220 @@
+package com.tiendamuna.stock.presentation.stock
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import com.tiendamuna.stock.domain.model.Ingredient
+import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
+
+@Composable
+fun StockScreen(
+    viewModel: StockViewModel
+) {
+    val state by viewModel.state.collectAsState()
+    var name by remember { mutableStateOf("") }
+    var quantity by remember { mutableStateOf("") }
+    var unit by remember { mutableStateOf("") }
+    
+    var ingredientToEdit by remember { mutableStateOf<IngredientUiModel?>(null) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Text(text = "Alta de Stock", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        state.error?.let { error ->
+            Text(text = error, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+            Button(onClick = { viewModel.onEvent(StockEvent.ClearError) }) {
+                Text("Limpiar Error")
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Nombre del ingrediente") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Row(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = quantity,
+                onValueChange = { quantity = it },
+                label = { Text("Cantidad") },
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            OutlinedTextField(
+                value = unit,
+                onValueChange = { unit = it },
+                label = { Text("Unidad (kg, g, etc)") },
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Button(
+            onClick = {
+                viewModel.onEvent(StockEvent.AddIngredient(name, quantity.toDoubleOrNull() ?: 0.0, unit))
+                name = ""
+                quantity = ""
+                unit = ""
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Agregar al Stock")
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Text(text = "Inventario Actual", style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        LazyColumn {
+            items(state.ingredients) { ingredient ->
+                StockItem(
+                    ingredient = ingredient,
+                    onDelete = {
+                        viewModel.onEvent(
+                            StockEvent.DeleteIngredient(
+                                Ingredient(
+                                    id = ingredient.id,
+                                    name = ingredient.name,
+                                    quantity = ingredient.rawQuantity,
+                                    unit = ingredient.unit
+                                )
+                            )
+                        )
+                    },
+                    onEdit = { ingredientToEdit = ingredient }
+                )
+            }
+        }
+    }
+
+    if (ingredientToEdit != null) {
+        EditIngredientDialog(
+            ingredient = ingredientToEdit!!,
+            onDismiss = { ingredientToEdit = null },
+            onConfirm = { updated ->
+                viewModel.onEvent(StockEvent.UpdateIngredient(updated))
+                ingredientToEdit = null
+            }
+        )
+    }
+}
+
+@Composable
+fun EditIngredientDialog(
+    ingredient: IngredientUiModel,
+    onDismiss: () -> Unit,
+    onConfirm: (Ingredient) -> Unit
+) {
+    var name by remember { mutableStateOf(ingredient.name) }
+    var quantity by remember { mutableStateOf(ingredient.rawQuantity.toString()) }
+    var unit by remember { mutableStateOf(ingredient.unit) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = "Editar Ingrediente", style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Nombre") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = quantity,
+                    onValueChange = { quantity = it },
+                    label = { Text("Cantidad") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = unit,
+                    onValueChange = { unit = it },
+                    label = { Text("Unidad") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onDismiss) { Text("Cancelar") }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            onConfirm(
+                                Ingredient(
+                                    id = ingredient.id,
+                                    name = name,
+                                    quantity = quantity.toDoubleOrNull() ?: 0.0,
+                                    unit = unit
+                                )
+                            )
+                        },
+                        enabled = name.isNotBlank() && quantity.toDoubleOrNull() != null
+                    ) {
+                        Text("Guardar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun StockItem(
+    ingredient: IngredientUiModel,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = ingredient.name, style = MaterialTheme.typography.bodyLarge)
+                Text(text = ingredient.quantityDisplay, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
+            }
+            Row {
+                IconButton(onClick = onEdit) {
+                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary)
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = MaterialTheme.colorScheme.error)
+                }
+            }
+        }
+    }
+}
