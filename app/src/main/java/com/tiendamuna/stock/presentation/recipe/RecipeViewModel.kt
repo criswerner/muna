@@ -32,12 +32,12 @@ class RecipeViewModel(
     private val _state = MutableStateFlow(RecipeState())
     val state: StateFlow<RecipeState> = _state.asStateFlow()
 
-    init {
-        loadRecipes()
-        loadAvailableIngredients()
-    }
-
-    private fun loadRecipes() {
+   // init {
+   //     loadRecipes()
+   //     loadAvailableIngredients()
+   // }
+//
+     fun loadRecipes() {
         viewModelScope.launch {
             getRecipesUseCase().collect { recipes ->
                 _state.value = _state.value.copy(
@@ -47,9 +47,10 @@ class RecipeViewModel(
         }
     }
 
-    private fun loadAvailableIngredients() {
+    fun loadAvailableIngredients() {
         viewModelScope.launch {
             getStockUseCase().collect { ingredients ->
+                println("Ingredients: ${ingredients.joinToString(" - ")}")
                 _state.value = _state.value.copy(
                     availableIngredients = ingredients.map { it.toUiModel() }
                 )

@@ -1,6 +1,7 @@
 package com.tiendamuna.stock.data
 
 import android.content.Context
+import com.tiendamuna.stock.domain.model.Category
 import com.tiendamuna.stock.domain.model.Ingredient
 import com.tiendamuna.stock.domain.repository.StockRepository
 import kotlinx.coroutines.flow.Flow
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.json.JSONArray
 import org.json.JSONObject
+import androidx.core.content.edit
 
 class PersistentStockRepositoryImpl(context: Context) : StockRepository {
     private val prefs = context.getSharedPreferences("stock_prefs", Context.MODE_PRIVATE)
@@ -48,9 +50,10 @@ class PersistentStockRepositoryImpl(context: Context) : StockRepository {
             obj.put("name", it.name)
             obj.put("quantity", it.quantity)
             obj.put("unit", it.unit)
+            obj.put("category", it.category.name)
             array.put(obj)
         }
-        prefs.edit().putString("ingredients_json", array.toString()).apply()
+        prefs.edit { putString("ingredients_json", array.toString()) }
     }
 
     private fun loadStock(): List<Ingredient> {
@@ -64,7 +67,8 @@ class PersistentStockRepositoryImpl(context: Context) : StockRepository {
                     id = obj.getString("id"),
                     name = obj.getString("name"),
                     quantity = obj.getDouble("quantity"),
-                    unit = obj.getString("unit")
+                    unit = obj.getString("unit"),
+                    category = Category.fromName(obj.optString("category", Category.OTHERS.name))
                 )
             )
         }

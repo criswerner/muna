@@ -16,8 +16,8 @@ class PrepareRecipeUseCase(private val stockRepository: StockRepository) {
             
             val convertedRequiredQuantity = UnitConverter.convert(
                 amount = required.quantityRequired,
-                fromUnit = required.unit,
-                toUnit = stockItem.unit
+                fromUnitSymbol = required.unit,
+                toUnitSymbol = stockItem.unit
             )
             
             stockItem.quantity < convertedRequiredQuantity
@@ -34,8 +34,8 @@ class PrepareRecipeUseCase(private val stockRepository: StockRepository) {
             
             val convertedRequiredQuantity = UnitConverter.convert(
                 amount = required.quantityRequired,
-                fromUnit = required.unit,
-                toUnit = stockItem.unit
+                fromUnitSymbol = required.unit,
+                toUnitSymbol = stockItem.unit
             )
             
             stockRepository.updateIngredient(

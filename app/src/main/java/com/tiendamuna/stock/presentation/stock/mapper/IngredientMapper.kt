@@ -9,6 +9,7 @@ fun Ingredient.toUiModel(): IngredientUiModel {
         name = name,
         quantityDisplay = "$quantity $unit",
         rawQuantity = quantity,
-        unit = unit
+        unit = unit,
+        categoryName = category.displayName
     )
 }

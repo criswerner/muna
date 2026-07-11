@@ -2,6 +2,7 @@ package com.tiendamuna.stock.presentation.stock
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tiendamuna.stock.domain.model.Category
 import com.tiendamuna.stock.domain.model.Ingredient
 import com.tiendamuna.stock.domain.usecase.AddIngredientUseCase
 import com.tiendamuna.stock.domain.usecase.DeleteIngredientUseCase
@@ -46,7 +47,8 @@ class StockViewModel(
                         addIngredientUseCase(
                             name = event.name,
                             quantity = event.quantity,
-                            unit = event.unit
+                            unit = event.unit,
+                            category = event.category
                         )
                         _state.value = _state.value.copy(error = null)
                     } catch (e: Exception) {
@@ -82,7 +84,7 @@ data class StockState(
 )
 
 sealed class StockEvent {
-    data class AddIngredient(val name: String, val quantity: Double, val unit: String) : StockEvent()
+    data class AddIngredient(val name: String, val quantity: Double, val unit: String, val category: Category) : StockEvent()
     data class UpdateIngredient(val ingredient: Ingredient) : StockEvent()
     data class DeleteIngredient(val ingredient: Ingredient) : StockEvent()
     object ClearError : StockEvent()

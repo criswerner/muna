@@ -4,5 +4,6 @@ data class Ingredient(
     val id: String = java.util.UUID.randomUUID().toString(),
     val name: String,
     val quantity: Double,
-    val unit: String
+    val unit: String,
+    val category: Category = Category.OTHERS
 )

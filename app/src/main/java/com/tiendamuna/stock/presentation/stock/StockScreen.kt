@@ -1,5 +1,6 @@
 package com.tiendamuna.stock.presentation.stock
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,8 +13,83 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.tiendamuna.stock.domain.model.Category
 import com.tiendamuna.stock.domain.model.Ingredient
+import com.tiendamuna.stock.domain.model.MeasureUnit
 import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UnitSelector(
+    selectedUnit: String,
+    onUnitSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val units = MeasureUnit.getAllSymbols()
+
+    Box(modifier = modifier) {
+        OutlinedTextField(
+            value = selectedUnit,
+            onValueChange = {},
+            readOnly = false,
+            label = { Text("Unidad") },
+            modifier = Modifier.fillMaxWidth().clickable { expanded = true },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth(0.5f)
+        ) {
+            units.forEach { unit ->
+                DropdownMenuItem(
+                    text = { Text(unit) },
+                    onClick = {
+                        onUnitSelected(unit)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CategorySelector(
+    selectedCategory: Category,
+    onCategorySelected: (Category) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier) {
+        OutlinedTextField(
+            value = selectedCategory.displayName,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Categoría") },
+            modifier = Modifier.fillMaxWidth().clickable { expanded = true },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Category.entries.forEach { category ->
+                DropdownMenuItem(
+                    text = { Text(category.displayName) },
+                    onClick = {
+                        onCategorySelected(category)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun StockScreen(
@@ -22,7 +98,8 @@ fun StockScreen(
     val state by viewModel.state.collectAsState()
     var name by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
-    var unit by remember { mutableStateOf("") }
+    var unit by remember { mutableStateOf(MeasureUnit.GRAM.symbol) }
+    var category by remember { mutableStateOf(Category.OTHERS) }
     
     var ingredientToEdit by remember { mutableStateOf<IngredientUiModel?>(null) }
 
@@ -58,21 +135,29 @@ fun StockScreen(
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            OutlinedTextField(
-                value = unit,
-                onValueChange = { unit = it },
-                label = { Text("Unidad (kg, g, etc)") },
+            UnitSelector(
+                selectedUnit = unit,
+                onUnitSelected = { unit = it },
                 modifier = Modifier.weight(1f)
             )
         }
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        CategorySelector(
+            selectedCategory = category,
+            onCategorySelected = { category = it },
+            modifier = Modifier.fillMaxWidth()
+        )
+        
         Spacer(modifier = Modifier.height(16.dp))
         
         Button(
             onClick = {
-                viewModel.onEvent(StockEvent.AddIngredient(name, quantity.toDoubleOrNull() ?: 0.0, unit))
+                viewModel.onEvent(StockEvent.AddIngredient(name, quantity.toDoubleOrNull() ?: 0.0, unit, category))
                 name = ""
                 quantity = ""
-                unit = ""
+                unit = MeasureUnit.GRAM.symbol
+                category = Category.OTHERS
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -127,6 +212,9 @@ fun EditIngredientDialog(
     var name by remember { mutableStateOf(ingredient.name) }
     var quantity by remember { mutableStateOf(ingredient.rawQuantity.toString()) }
     var unit by remember { mutableStateOf(ingredient.unit) }
+    var category by remember { 
+        mutableStateOf(Category.entries.find { it.displayName == ingredient.categoryName } ?: Category.OTHERS) 
+    }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -152,10 +240,15 @@ fun EditIngredientDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = unit,
-                    onValueChange = { unit = it },
-                    label = { Text("Unidad") },
+                UnitSelector(
+                    selectedUnit = unit,
+                    onUnitSelected = { unit = it },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                CategorySelector(
+                    selectedCategory = category,
+                    onCategorySelected = { category = it },
                     modifier = Modifier.fillMaxWidth()
                 )
                 
@@ -171,7 +264,8 @@ fun EditIngredientDialog(
                                     id = ingredient.id,
                                     name = name,
                                     quantity = quantity.toDoubleOrNull() ?: 0.0,
-                                    unit = unit
+                                    unit = unit,
+                                    category = category
                                 )
                             )
                         },
@@ -205,7 +299,11 @@ fun StockItem(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = ingredient.name, style = MaterialTheme.typography.bodyLarge)
-                Text(text = ingredient.quantityDisplay, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
+                Text(
+                    text = "${ingredient.categoryName} • ${ingredient.quantityDisplay}", 
+                    style = MaterialTheme.typography.bodyMedium, 
+                    color = MaterialTheme.colorScheme.secondary
+                )
             }
             Row {
                 IconButton(onClick = onEdit) {

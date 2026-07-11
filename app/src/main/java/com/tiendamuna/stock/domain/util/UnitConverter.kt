@@ -1,47 +1,22 @@
 package com.tiendamuna.stock.domain.util
 
+import com.tiendamuna.stock.domain.model.MeasureUnit
+
 object UnitConverter {
     
-    private val massUnits = mapOf(
-        "kg" to 1000.0,
-        "g" to 1.0,
-        "mg" to 0.001
-    )
-    
-    private val volumeUnits = mapOf(
-        "l" to 1000.0,
-        "ml" to 1.0
-    )
-
-    fun convert(amount: Double, fromUnit: String, toUnit: String): Double {
-        val from = fromUnit.lowercase()
-        val to = toUnit.lowercase()
+    fun convert(amount: Double, fromUnitSymbol: String, toUnitSymbol: String): Double {
+        val from = MeasureUnit.fromSymbol(fromUnitSymbol)
+        val to = MeasureUnit.fromSymbol(toUnitSymbol)
         
         if (from == to) return amount
+        if (from.type != to.type) return amount // Cannot convert between different types
         
-        // Try mass conversion
-        if (massUnits.containsKey(from) && massUnits.containsKey(to)) {
-            return amount * (massUnits[from]!! / massUnits[to]!!)
-        }
-        
-        // Try volume conversion
-        if (volumeUnits.containsKey(from) && volumeUnits.containsKey(to)) {
-            return amount * (volumeUnits[from]!! / volumeUnits[to]!!)
-        }
-        
-        // If units are incompatible or unknown, we can't convert automatically
-        // but we return the original amount and let the logic decide (likely a mismatch error)
-        return amount
+        return amount * (from.ratioToBase / to.ratioToBase)
     }
 
-    fun areCompatible(unit1: String, unit2: String): Boolean {
-        val u1 = unit1.lowercase()
-        val u2 = unit2.lowercase()
-        if (u1 == u2) return true
-        
-        val isMass = massUnits.containsKey(u1) && massUnits.containsKey(u2)
-        val isVolume = volumeUnits.containsKey(u1) && volumeUnits.containsKey(u2)
-        
-        return isMass || isVolume
+    fun areCompatible(unit1Symbol: String, unit2Symbol: String): Boolean {
+        val u1 = MeasureUnit.fromSymbol(unit1Symbol)
+        val u2 = MeasureUnit.fromSymbol(unit2Symbol)
+        return u1.type == u2.type
     }
 }

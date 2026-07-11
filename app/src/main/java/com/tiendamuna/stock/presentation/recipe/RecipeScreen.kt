@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.tiendamuna.stock.domain.model.Recipe
 import com.tiendamuna.stock.domain.model.RecipeIngredient
+import com.tiendamuna.stock.domain.model.MeasureUnit
 import com.tiendamuna.stock.domain.util.UnitConverter
 import com.tiendamuna.stock.presentation.recipe.model.RecipeUiModel
 import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
@@ -91,6 +92,11 @@ fun RecipeScreen(
                 recipeToEdit = null
             }
         )
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadRecipes()
+        viewModel.loadAvailableIngredients()
     }
 }
 
@@ -221,11 +227,8 @@ fun IngredientPicker(
     var unitExpanded by remember { mutableStateOf(false) }
 
     val compatibleUnits = remember(selectedIngredient) {
-        when (selectedIngredient?.unit?.lowercase()) {
-            "kg", "g", "mg" -> listOf("kg", "g", "mg")
-            "l", "ml" -> listOf("l", "ml")
-            else -> selectedIngredient?.unit?.let { listOf(it) } ?: emptyList()
-        }
+        val ingredientUnit = MeasureUnit.fromSymbol(selectedIngredient?.unit ?: "")
+        MeasureUnit.entries.filter { it.type == ingredientUnit.type }.map { it.symbol }
     }
 
     LaunchedEffect(selectedIngredient) {
@@ -306,8 +309,8 @@ fun IngredientPicker(
                     
                     val neededInStockUnit = UnitConverter.convert(
                         amount = neededRaw,
-                        fromUnit = selectedUnit,
-                        toUnit = selectedIngredient!!.unit
+                        fromUnitSymbol = selectedUnit,
+                        toUnitSymbol = selectedIngredient!!.unit
                     )
                     
                     if (neededInStockUnit > availableQty) {

@@ -8,5 +8,6 @@ data class IngredientUiModel(
     val name: String,
     val quantityDisplay: String,
     val rawQuantity: Double,
-    val unit: String
+    val unit: String,
+    val categoryName: String
 )
