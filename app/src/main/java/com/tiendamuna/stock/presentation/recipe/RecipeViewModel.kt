@@ -2,9 +2,7 @@ package com.tiendamuna.stock.presentation.recipe
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tiendamuna.stock.domain.model.Ingredient
 import com.tiendamuna.stock.domain.model.Recipe
-import com.tiendamuna.stock.domain.model.RecipeIngredient
 import com.tiendamuna.stock.domain.usecase.AddRecipeUseCase
 import com.tiendamuna.stock.domain.usecase.DeleteRecipeUseCase
 import com.tiendamuna.stock.domain.usecase.GetRecipesUseCase
@@ -32,12 +30,7 @@ class RecipeViewModel(
     private val _state = MutableStateFlow(RecipeState())
     val state: StateFlow<RecipeState> = _state.asStateFlow()
 
-   // init {
-   //     loadRecipes()
-   //     loadAvailableIngredients()
-   // }
-//
-     fun loadRecipes() {
+    fun loadRecipes() {
         viewModelScope.launch {
             getRecipesUseCase().collect { recipes ->
                 _state.value = _state.value.copy(
@@ -50,7 +43,6 @@ class RecipeViewModel(
     fun loadAvailableIngredients() {
         viewModelScope.launch {
             getStockUseCase().collect { ingredients ->
-                println("Ingredients: ${ingredients.joinToString(" - ")}")
                 _state.value = _state.value.copy(
                     availableIngredients = ingredients.map { it.toUiModel() }
                 )
@@ -64,7 +56,6 @@ class RecipeViewModel(
                 viewModelScope.launch {
                     try {
                         addRecipeUseCase(event.recipe)
-                        _state.value = _state.value.copy(isCreatingRecipe = false)
                     } catch (e: Exception) {
                         _state.value = _state.value.copy(error = e.message)
                     }
@@ -73,9 +64,6 @@ class RecipeViewModel(
             is RecipeEvent.PrepareRecipe -> {
                 viewModelScope.launch {
                     try {
-                        // We need the domain model here, so we keep the domain model in the event 
-                        // or map back. Usually, domain events carry domain models.
-                        // Let's check RecipeEvent.
                         prepareRecipeUseCase(event.recipe)
                     } catch (e: Exception) {
                         _state.value = _state.value.copy(error = e.message)
@@ -84,9 +72,6 @@ class RecipeViewModel(
             }
             RecipeEvent.ClearError -> {
                 _state.value = _state.value.copy(error = null)
-            }
-            RecipeEvent.ToggleCreateRecipeDialog -> {
-                _state.value = _state.value.copy(isCreatingRecipe = !_state.value.isCreatingRecipe)
             }
             is RecipeEvent.DeleteRecipe -> {
                 viewModelScope.launch {
@@ -97,7 +82,6 @@ class RecipeViewModel(
                 viewModelScope.launch {
                     try {
                         updateRecipeUseCase(event.recipe)
-                        _state.value = _state.value.copy(isCreatingRecipe = false) // Reuse for now or new state
                     } catch (e: Exception) {
                         _state.value = _state.value.copy(error = e.message)
                     }
@@ -110,7 +94,6 @@ class RecipeViewModel(
 data class RecipeState(
     val recipes: List<RecipeUiModel> = emptyList(),
     val availableIngredients: List<IngredientUiModel> = emptyList(),
-    val isCreatingRecipe: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null
 )
@@ -120,6 +103,5 @@ sealed class RecipeEvent {
     data class UpdateRecipe(val recipe: Recipe) : RecipeEvent()
     data class DeleteRecipe(val recipe: Recipe) : RecipeEvent()
     data class PrepareRecipe(val recipe: Recipe) : RecipeEvent()
-    object ToggleCreateRecipeDialog : RecipeEvent()
     object ClearError : RecipeEvent()
 }

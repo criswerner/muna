@@ -16,6 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.tiendamuna.stock.presentation.recipe.RecipeFormScreen
 import com.tiendamuna.stock.presentation.recipe.RecipeScreen
 import com.tiendamuna.stock.presentation.recipe.RecipeViewModel
 import com.tiendamuna.stock.presentation.stock.StockScreen
@@ -32,8 +39,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             StockTheme {
-                var selectedTab by remember { mutableIntStateOf(0) }
-                
+                val navController = rememberNavController()
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
+
                 val stockViewModel: StockViewModel = viewModel(
                     factory = object : ViewModelProvider.Factory {
                         @Suppress("UNCHECKED_CAST")
@@ -67,26 +76,72 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        NavigationBar {
-                            NavigationBarItem(
-                                selected = selectedTab == 0,
-                                onClick = { selectedTab = 0 },
-                                icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Stock") },
-                                label = { Text("Stock") }
-                            )
-                            NavigationBarItem(
-                                selected = selectedTab == 1,
-                                onClick = { selectedTab = 1 },
-                                icon = { Icon(Icons.Default.List, contentDescription = "Recetas") },
-                                label = { Text("Recetas") }
-                            )
+                        // Only show bottom bar on main screens
+                        if (currentRoute == "stock" || currentRoute == "recipes") {
+                            NavigationBar {
+                                NavigationBarItem(
+                                    selected = currentRoute == "stock",
+                                    onClick = { 
+                                        if (currentRoute != "stock") {
+                                            navController.navigate("stock") {
+                                                popUpTo("stock") { saveState = true }
+                                                launchSingleTop = true
+                                                restoreState = true
+                                            }
+                                        }
+                                    },
+                                    icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Stock") },
+                                    label = { Text("Stock") }
+                                )
+                                NavigationBarItem(
+                                    selected = currentRoute == "recipes",
+                                    onClick = { 
+                                        if (currentRoute != "recipes") {
+                                            navController.navigate("recipes") {
+                                                popUpTo("stock") { saveState = true }
+                                                launchSingleTop = true
+                                                restoreState = true
+                                            }
+                                        }
+                                    },
+                                    icon = { Icon(Icons.Default.List, contentDescription = "Recetas") },
+                                    label = { Text("Recetas") }
+                                )
+                            }
                         }
                     }
                 ) { innerPadding ->
-                    Box(modifier = Modifier.padding(innerPadding)) {
-                        when (selectedTab) {
-                            0 -> StockScreen(viewModel = stockViewModel)
-                            1 -> RecipeScreen(viewModel = recipeViewModel)
+                    NavHost(
+                        navController = navController,
+                        startDestination = "stock",
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        composable("stock") {
+                            StockScreen(viewModel = stockViewModel)
+                        }
+                        composable("recipes") {
+                            RecipeScreen(
+                                viewModel = recipeViewModel,
+                                onNavigateToCreate = { navController.navigate("recipe_form") },
+                                onNavigateToEdit = { id -> navController.navigate("recipe_form?recipeId=$id") }
+                            )
+                        }
+                        composable(
+                            route = "recipe_form?recipeId={recipeId}",
+                            arguments = listOf(
+                                navArgument("recipeId") { 
+                                    type = NavType.StringType
+                                    nullable = true
+                                    defaultValue = null
+                                }
+                            )
+                        ) { backStackEntry ->
+                            val recipeId = backStackEntry.arguments?.getString("recipeId")
+                            RecipeFormScreen(
+                                viewModel = recipeViewModel,
+                                recipeId = recipeId,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
                         }
                     }
                 }

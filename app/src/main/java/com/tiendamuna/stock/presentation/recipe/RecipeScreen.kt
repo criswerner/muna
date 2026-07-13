@@ -25,13 +25,19 @@ import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
 @Composable
 fun RecipeScreen(
     viewModel: RecipeViewModel,
+    onNavigateToCreate: () -> Unit,
+    onNavigateToEdit: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
-    var recipeToEdit by remember { mutableStateOf<RecipeUiModel?>(null) }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadRecipes()
+        viewModel.loadAvailableIngredients()
+    }
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = { viewModel.onEvent(RecipeEvent.ToggleCreateRecipeDialog) }) {
+            FloatingActionButton(onClick = onNavigateToCreate) {
                 Icon(Icons.Default.Add, contentDescription = "Nueva Receta")
             }
         }
@@ -66,37 +72,12 @@ fun RecipeScreen(
                             viewModel.onEvent(RecipeEvent.DeleteRecipe(recipe.toDomain()))
                         },
                         onEdit = {
-                            recipeToEdit = recipe
+                            onNavigateToEdit(recipe.id)
                         }
                     )
                 }
             }
         }
-    }
-
-    if (state.isCreatingRecipe) {
-        CreateRecipeDialog(
-            availableIngredients = state.availableIngredients,
-            onDismiss = { viewModel.onEvent(RecipeEvent.ToggleCreateRecipeDialog) },
-            onConfirm = { recipe -> viewModel.onEvent(RecipeEvent.AddRecipe(recipe)) }
-        )
-    }
-    
-    if (recipeToEdit != null) {
-        CreateRecipeDialog(
-            availableIngredients = state.availableIngredients,
-            initialRecipe = recipeToEdit,
-            onDismiss = { recipeToEdit = null },
-            onConfirm = { updated ->
-                viewModel.onEvent(RecipeEvent.UpdateRecipe(updated))
-                recipeToEdit = null
-            }
-        )
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.loadRecipes()
-        viewModel.loadAvailableIngredients()
     }
 }
 
@@ -114,104 +95,6 @@ fun RecipeUiModel.toDomain() = Recipe(
     },
     instructions = instructions
 )
-
-@Composable
-fun CreateRecipeDialog(
-    availableIngredients: List<IngredientUiModel>,
-    initialRecipe: RecipeUiModel? = null,
-    onDismiss: () -> Unit,
-    onConfirm: (Recipe) -> Unit
-) {
-    var name by remember { mutableStateOf(initialRecipe?.name ?: "") }
-    var selectedIngredients by remember { 
-        mutableStateOf(
-            initialRecipe?.ingredients?.map { 
-                RecipeIngredient(it.ingredientId, it.name, it.rawQuantity, it.unit) 
-            } ?: emptyList<RecipeIngredient>()
-        ) 
-    }
-    
-    // UI for adding an ingredient
-    var showIngredientSelector by remember { mutableStateOf(false) }
-
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = MaterialTheme.shapes.medium,
-            color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = if (initialRecipe == null) "Nueva Receta" else "Editar Receta", 
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Nombre de la receta") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Ingredientes:", style = MaterialTheme.typography.titleMedium)
-                
-                selectedIngredients.forEach { ingredient ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = "${ingredient.name}: ${ingredient.quantityRequired} ${ingredient.unit}", modifier = Modifier.weight(1f))
-                        IconButton(onClick = {
-                            selectedIngredients = selectedIngredients.filter { it.ingredientId != ingredient.ingredientId }
-                        }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red)
-                        }
-                    }
-                }
-                
-                TextButton(onClick = { showIngredientSelector = true }) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Añadir Ingrediente")
-                }
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onDismiss) { Text("Cancelar") }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        onClick = {
-                            onConfirm(
-                                Recipe(
-                                    id = initialRecipe?.id ?: java.util.UUID.randomUUID().toString(),
-                                    name = name, 
-                                    ingredients = selectedIngredients
-                                )
-                            )
-                        },
-                        enabled = name.isNotBlank() && selectedIngredients.isNotEmpty()
-                    ) {
-                        Text("Guardar")
-                    }
-                }
-            }
-        }
-    }
-
-    if (showIngredientSelector) {
-        IngredientPicker(
-            available = availableIngredients,
-            onDismiss = { showIngredientSelector = false },
-            onSelected = { recipeIngredient ->
-                selectedIngredients = selectedIngredients + recipeIngredient
-                showIngredientSelector = false
-            }
-        )
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
