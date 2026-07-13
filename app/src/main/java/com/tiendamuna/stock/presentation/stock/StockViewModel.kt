@@ -11,8 +11,11 @@ import com.tiendamuna.stock.domain.usecase.UpdateIngredientUseCase
 import com.tiendamuna.stock.presentation.stock.mapper.toUiModel
 import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class StockViewModel(
@@ -22,8 +25,28 @@ class StockViewModel(
     private val deleteIngredientUseCase: DeleteIngredientUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<StockState>(StockState())
-    val state: StateFlow<StockState> = _state.asStateFlow()
+    private val _ingredients = MutableStateFlow<List<IngredientUiModel>>(emptyList())
+    private val _searchQuery = MutableStateFlow("")
+    private val _error = MutableStateFlow<String?>(null)
+    private val _isLoading = MutableStateFlow(false)
+
+    val state: StateFlow<StockState> = combine(
+        _ingredients,
+        _searchQuery,
+        _error,
+        _isLoading
+    ) { ingredients, query, error, isLoading ->
+        StockState(
+            ingredients = if (query.isBlank()) {
+                ingredients
+            } else {
+                ingredients.filter { it.name.contains(query, ignoreCase = true) }
+            },
+            searchQuery = query,
+            isLoading = isLoading,
+            error = error
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), StockState())
 
     init {
         loadStock()
@@ -32,15 +55,16 @@ class StockViewModel(
     private fun loadStock() {
         viewModelScope.launch {
             getStockUseCase().collect { ingredients ->
-                _state.value = _state.value.copy(
-                    ingredients = ingredients.map { it.toUiModel() }
-                )
+                _ingredients.value = ingredients.map { it.toUiModel() }
             }
         }
     }
 
     fun onEvent(event: StockEvent) {
         when (event) {
+            is StockEvent.SearchQueryChanged -> {
+                _searchQuery.value = event.query
+            }
             is StockEvent.AddIngredient -> {
                 viewModelScope.launch {
                     try {
@@ -50,14 +74,14 @@ class StockViewModel(
                             unit = event.unit,
                             category = event.category
                         )
-                        _state.value = _state.value.copy(error = null)
+                        _error.value = null
                     } catch (e: Exception) {
-                        _state.value = _state.value.copy(error = e.message)
+                        _error.value = e.message
                     }
                 }
             }
             StockEvent.ClearError -> {
-                _state.value = _state.value.copy(error = null)
+                _error.value = null
             }
             is StockEvent.DeleteIngredient -> {
                 viewModelScope.launch {
@@ -69,7 +93,7 @@ class StockViewModel(
                     try {
                         updateIngredientUseCase(event.ingredient)
                     } catch (e: Exception) {
-                        _state.value = _state.value.copy(error = e.message)
+                        _error.value = e.message
                     }
                 }
             }
@@ -79,11 +103,13 @@ class StockViewModel(
 
 data class StockState(
     val ingredients: List<IngredientUiModel> = emptyList(),
+    val searchQuery: String = "",
     val isLoading: Boolean = false,
     val error: String? = null
 )
 
 sealed class StockEvent {
+    data class SearchQueryChanged(val query: String) : StockEvent()
     data class AddIngredient(val name: String, val quantity: Double, val unit: String, val category: Category) : StockEvent()
     data class UpdateIngredient(val ingredient: Ingredient) : StockEvent()
     data class DeleteIngredient(val ingredient: Ingredient) : StockEvent()

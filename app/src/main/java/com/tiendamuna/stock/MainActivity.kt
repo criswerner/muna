@@ -16,9 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.tiendamuna.stock.data.PersistentRecipeRepositoryImpl
-import com.tiendamuna.stock.data.PersistentStockRepositoryImpl
-import com.tiendamuna.stock.domain.usecase.*
 import com.tiendamuna.stock.presentation.recipe.RecipeScreen
 import com.tiendamuna.stock.presentation.recipe.RecipeViewModel
 import com.tiendamuna.stock.presentation.stock.StockScreen
@@ -29,20 +26,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Persistent repositories
-        val stockRepository = PersistentStockRepositoryImpl(applicationContext)
-        val recipeRepository = PersistentRecipeRepositoryImpl(applicationContext)
-        
-        val getStockUseCase = GetStockUseCase(stockRepository)
-        val addIngredientUseCase = AddIngredientUseCase(stockRepository)
-        val updateIngredientUseCase = UpdateIngredientUseCase(stockRepository)
-        val deleteIngredientUseCase = DeleteIngredientUseCase(stockRepository)
-        
-        val getRecipesUseCase = GetRecipesUseCase(recipeRepository)
-        val addRecipeUseCase = AddRecipeUseCase(recipeRepository)
-        val updateRecipeUseCase = UpdateRecipeUseCase(recipeRepository)
-        val deleteRecipeUseCase = DeleteRecipeUseCase(recipeRepository)
-        val prepareRecipeUseCase = PrepareRecipeUseCase(stockRepository)
+        // Get the dependency container from Application
+        val container = (application as StockApplication).container
 
         enableEdgeToEdge()
         setContent {
@@ -54,10 +39,10 @@ class MainActivity : ComponentActivity() {
                         @Suppress("UNCHECKED_CAST")
                         override fun <T : ViewModel> create(modelClass: Class<T>): T {
                             return StockViewModel(
-                                getStockUseCase, 
-                                addIngredientUseCase,
-                                updateIngredientUseCase,
-                                deleteIngredientUseCase
+                                container.getStockUseCase, 
+                                container.addIngredientUseCase,
+                                container.updateIngredientUseCase,
+                                container.deleteIngredientUseCase
                             ) as T
                         }
                     }
@@ -68,12 +53,12 @@ class MainActivity : ComponentActivity() {
                         @Suppress("UNCHECKED_CAST")
                         override fun <T : ViewModel> create(modelClass: Class<T>): T {
                             return RecipeViewModel(
-                                getRecipesUseCase, 
-                                addRecipeUseCase, 
-                                prepareRecipeUseCase,
-                                getStockUseCase,
-                                updateRecipeUseCase,
-                                deleteRecipeUseCase
+                                container.getRecipesUseCase, 
+                                container.addRecipeUseCase, 
+                                container.prepareRecipeUseCase,
+                                container.getStockUseCase,
+                                container.updateRecipeUseCase,
+                                container.deleteRecipeUseCase
                             ) as T
                         }
                     }

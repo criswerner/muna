@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -166,7 +167,21 @@ fun StockScreen(
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        Text(text = "Inventario Actual", style = MaterialTheme.typography.titleLarge)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+        ) {
+            Text(text = "Inventario", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            OutlinedTextField(
+                value = state.searchQuery,
+                onValueChange = { viewModel.onEvent(StockEvent.SearchQueryChanged(it)) },
+                placeholder = { Text("Buscar...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                modifier = Modifier.weight(1.5f),
+                singleLine = true,
+                shape = MaterialTheme.shapes.medium
+            )
+        }
         Spacer(modifier = Modifier.height(8.dp))
         
         LazyColumn {
