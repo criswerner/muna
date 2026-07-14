@@ -12,12 +12,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.tiendamuna.stock.domain.model.Category
 import com.tiendamuna.stock.domain.model.Ingredient
 import com.tiendamuna.stock.domain.model.MeasureUnit
 import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
+import com.tiendamuna.stock.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,9 +103,8 @@ fun StockScreen(
     var quantity by remember { mutableStateOf("") }
     var unit by remember { mutableStateOf(MeasureUnit.GRAM.symbol) }
     var category by remember { mutableStateOf(Category.OTHERS) }
-    
-    var ingredientToEdit by remember { mutableStateOf<IngredientUiModel?>(null) }
 
+    var ingredientToEdit by remember { mutableStateOf<IngredientUiModel?>(null) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -119,20 +120,24 @@ fun StockScreen(
             }
             Spacer(modifier = Modifier.height(8.dp))
         }
-        
+
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Nombre del ingrediente") },
+            label = { Text(
+                stringResource(R.string.ingredient_name_hint)
+            ) },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Row(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
                 value = quantity,
                 onValueChange = { quantity = it },
-                label = { Text("Cantidad") },
+                label = { Text(
+                    stringResource(R.string.quantity_field)
+                ) },
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -143,15 +148,15 @@ fun StockScreen(
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         CategorySelector(
             selectedCategory = category,
             onCategorySelected = { category = it },
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Button(
             onClick = {
                 viewModel.onEvent(StockEvent.AddIngredient(name, quantity.toDoubleOrNull() ?: 0.0, unit, category))
@@ -162,20 +167,27 @@ fun StockScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Agregar al Stock")
+            Text(
+                stringResource(R.string.ingredient_add_stock_button)
+            )
         }
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
         ) {
-            Text(text = "Inventario", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            Text(
+                text = stringResource(R.string.title_inventory),
+                style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f)
+            )
             OutlinedTextField(
                 value = state.searchQuery,
                 onValueChange = { viewModel.onEvent(StockEvent.SearchQueryChanged(it)) },
-                placeholder = { Text("Buscar...") },
+                placeholder = { Text(
+                    stringResource(R.string.ingredient_search_hint)
+                ) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 modifier = Modifier.weight(1.5f),
                 singleLine = true,
@@ -183,7 +195,7 @@ fun StockScreen(
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         LazyColumn {
             items(state.ingredients) { ingredient ->
                 StockItem(
@@ -227,8 +239,8 @@ fun EditIngredientDialog(
     var name by remember { mutableStateOf(ingredient.name) }
     var quantity by remember { mutableStateOf(ingredient.rawQuantity.toString()) }
     var unit by remember { mutableStateOf(ingredient.unit) }
-    var category by remember { 
-        mutableStateOf(Category.entries.find { it.displayName == ingredient.categoryName } ?: Category.OTHERS) 
+    var category by remember {
+        mutableStateOf(Category.entries.find { it.displayName == ingredient.categoryName } ?: Category.OTHERS)
     }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -238,20 +250,29 @@ fun EditIngredientDialog(
             modifier = Modifier.fillMaxWidth().padding(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = "Editar Ingrediente", style = MaterialTheme.typography.titleLarge)
+                Text(
+                    text = stringResource(R.string.title_edit_recipes),
+                    style = MaterialTheme.typography.titleLarge
+                )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nombre") },
+                    label = {
+                        Text(
+                            stringResource(R.string.name_field)
+                        )
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = quantity,
                     onValueChange = { quantity = it },
-                    label = { Text("Cantidad") },
+                    label = { Text(
+                        stringResource(R.string.quantity_field)
+                    ) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -266,9 +287,9 @@ fun EditIngredientDialog(
                     onCategorySelected = { category = it },
                     modifier = Modifier.fillMaxWidth()
                 )
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     TextButton(onClick = onDismiss) { Text("Cancelar") }
                     Spacer(modifier = Modifier.width(8.dp))
@@ -315,8 +336,8 @@ fun StockItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = ingredient.name, style = MaterialTheme.typography.bodyLarge)
                 Text(
-                    text = "${ingredient.categoryName} • ${ingredient.quantityDisplay}", 
-                    style = MaterialTheme.typography.bodyMedium, 
+                    text = "${ingredient.categoryName} • ${ingredient.quantityDisplay}",
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.secondary
                 )
             }

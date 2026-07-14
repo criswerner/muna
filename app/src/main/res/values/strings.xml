@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">Stock</string>
+
+    <string name="ingredient_name_hint">Nombre del ingrediente</string>
+    <string name="ingredient_search_hint">Buscar…</string>
+    <string name="ingredient_add_stock_button">Agregar al stock</string>
+
+    <string name="recipe_name_hint">Nombre de la receta</string>
+    <string name="recipe_instructions_hint">Instrucciones</string>
+
+    <string name="error_empty_name">El nombre no puede estar vacío</string>
+    <string name="error_negative_quantity">La cantidad no puede ser negativa</string>
+    <string name="error_ingredient_already_exists">Ya existe un ingrediente con el nombre \"{name}\"</string>
+    <string name="error_recipe_already_exists">Ya existe una receta con el nombre \"{name}\"</string>
+
+    <string name="title_add_stock">Alta de Stock</string>
+    <string name="title_edit_recipes">Editar Ingrediente</string>
+    <string name="title_inventory">Inventario</string>
+    <string name="title_recipes">Recetas</string>
+    <string name="title_stock">Stock</string>
+
+    <string name="name_field">Nombre</string>
+    <string name="quantity_field">Cantidad</string>
+    <string name="unit_field">Unidad</string>
+    <string name="category_field">Categoría</string>
+
+
+
 </resources>

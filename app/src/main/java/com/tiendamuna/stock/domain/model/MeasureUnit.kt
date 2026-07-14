@@ -19,7 +19,7 @@ enum class MeasureUnit(val symbol: String, val type: UnitType, val ratioToBase: 
 
     companion object {
         fun fromSymbol(symbol: String): MeasureUnit {
-            return entries.find { it.symbol.lowercase() == symbol.lowercase() } ?: UNIT
+            return entries.find { it.symbol.equals(symbol, ignoreCase = true) } ?: UNIT
         }
         
         fun getAllSymbols(): List<String> = entries.map { it.symbol }

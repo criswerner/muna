@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -94,7 +95,10 @@ class MainActivity : ComponentActivity() {
                                         }
                                     },
                                     icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Stock") },
-                                    label = { Text("Stock") }
+                                    label = { Text(
+                                        stringResource(R.string.title_stock)
+                                    )
+                                    }
                                 )
                                 NavigationBarItem(
                                     selected = currentRoute == "recipes",
@@ -108,7 +112,11 @@ class MainActivity : ComponentActivity() {
                                         }
                                     },
                                     icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Recetas") },
-                                    label = { Text("Recetas") }
+                                    label = {
+                                        Text(
+                                            stringResource(R.string.title_recipes)
+                                        )
+                                    }
                                 )
                             }
                         }
