@@ -3,6 +3,7 @@ package com.tiendamuna.stock.domain.usecase
 import com.tiendamuna.stock.domain.model.Category
 import com.tiendamuna.stock.domain.model.Ingredient
 import com.tiendamuna.stock.domain.repository.StockRepository
+import com.tiendamuna.stock.domain.util.PriceCalculator
 import com.tiendamuna.stock.domain.util.UnitConverter
 import kotlinx.coroutines.flow.first
 
@@ -17,8 +18,6 @@ class AddIngredientUseCase(private val repository: StockRepository) {
         if (name.isBlank()) throw IllegalArgumentException("El nombre no puede estar vacío")
         if (quantity <= 0) throw IllegalArgumentException("La cantidad debe ser mayor a 0")
         
-        val unitPriceForAddedBatch = totalPrice / quantity
-        
         val currentStock = repository.getStock().first()
         val existingIngredient = currentStock.find { it.name.trim().lowercase() == name.trim().lowercase() }
         
@@ -30,15 +29,15 @@ class AddIngredientUseCase(private val repository: StockRepository) {
                     toUnitSymbol = existingIngredient.unit
                 )
                 
-                // Calculamos el nuevo precio promedio ponderado
-                val totalValueExisting = existingIngredient.quantity * existingIngredient.pricePerUnit
-                val totalValueAdded = totalPrice 
-                val newTotalQuantity = existingIngredient.quantity + convertedAddedQuantity
-                
-                val newWeightedUnitPrice = (totalValueExisting + totalValueAdded) / newTotalQuantity
+                val newWeightedUnitPrice = PriceCalculator.calculateWeightedAveragePrice(
+                    currentQuantity = existingIngredient.quantity,
+                    currentUnitPrice = existingIngredient.pricePerUnit,
+                    addedQuantity = convertedAddedQuantity,
+                    totalAddedPrice = totalPrice
+                )
                 
                 val updatedIngredient = existingIngredient.copy(
-                    quantity = newTotalQuantity,
+                    quantity = existingIngredient.quantity + convertedAddedQuantity,
                     pricePerUnit = newWeightedUnitPrice
                 )
                 repository.updateIngredient(updatedIngredient)
@@ -47,12 +46,13 @@ class AddIngredientUseCase(private val repository: StockRepository) {
             }
         } else {
             // New ingredient
+            val unitPrice = totalPrice / quantity
             val ingredient = Ingredient(
                 name = name, 
                 quantity = quantity, 
                 unit = unit, 
                 category = category,
-                pricePerUnit = unitPriceForAddedBatch
+                pricePerUnit = unitPrice
             )
             repository.addIngredient(ingredient)
         }
