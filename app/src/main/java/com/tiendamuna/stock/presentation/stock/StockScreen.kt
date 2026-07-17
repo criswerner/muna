@@ -103,6 +103,7 @@ fun StockScreen(
     var quantity by remember { mutableStateOf("") }
     var unit by remember { mutableStateOf(MeasureUnit.GRAM.symbol) }
     var category by remember { mutableStateOf(Category.OTHERS) }
+    var totalPrice by remember { mutableStateOf("") }
 
     var ingredientToEdit by remember { mutableStateOf<IngredientUiModel?>(null) }
     Column(
@@ -151,15 +152,33 @@ fun StockScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = totalPrice,
+            onValueChange = { totalPrice = it },
+            label = { Text("Precio Total Pagado ($)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                viewModel.onEvent(StockEvent.AddIngredient(name, quantity.toDoubleOrNull() ?: 0.0, unit, category))
+                viewModel.onEvent(
+                    StockEvent.AddIngredient(
+                        name, 
+                        quantity.toDoubleOrNull() ?: 0.0, 
+                        unit, 
+                        category,
+                        totalPrice.toDoubleOrNull() ?: 0.0
+                    )
+                )
                 name = ""
                 quantity = ""
                 unit = MeasureUnit.GRAM.symbol
                 category = Category.OTHERS
+                totalPrice = ""
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -231,6 +250,7 @@ fun EditIngredientDialog(
     var name by remember { mutableStateOf(ingredient.name) }
     var quantity by remember { mutableStateOf(ingredient.rawQuantity.toString()) }
     var unit by remember { mutableStateOf(ingredient.unit) }
+    var pricePerUnit by remember { mutableStateOf(ingredient.pricePerUnit.toString()) }
     var category by remember {
         mutableStateOf(Category.entries.find { it.displayName == ingredient.categoryName } ?: Category.OTHERS)
     }
@@ -273,6 +293,13 @@ fun EditIngredientDialog(
                     onCategorySelected = { category = it },
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = pricePerUnit,
+                    onValueChange = { pricePerUnit = it },
+                    label = { Text("Precio por unidad ($)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -289,11 +316,12 @@ fun EditIngredientDialog(
                                     name = name,
                                     quantity = quantity.toDoubleOrNull() ?: 0.0,
                                     unit = unit,
-                                    category = category
+                                    category = category,
+                                    pricePerUnit = pricePerUnit.toDoubleOrNull() ?: 0.0
                                 )
                             )
                         },
-                        enabled = name.isNotBlank() && quantity.toDoubleOrNull() != null
+                        enabled = name.isNotBlank() && quantity.toDoubleOrNull() != null && pricePerUnit.toDoubleOrNull() != null
                     ) {
                         Text(stringResource(R.string.save))
                     }
@@ -324,7 +352,7 @@ fun StockItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = ingredient.name, style = MaterialTheme.typography.bodyLarge)
                 Text(
-                    text = "${ingredient.categoryName} • ${ingredient.quantityDisplay}",
+                    text = "${ingredient.categoryName} • ${ingredient.quantityDisplay} • ${ingredient.priceDisplay}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.secondary
                 )

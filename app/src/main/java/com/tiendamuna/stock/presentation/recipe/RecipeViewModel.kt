@@ -2,6 +2,7 @@ package com.tiendamuna.stock.presentation.recipe
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tiendamuna.stock.domain.model.Ingredient
 import com.tiendamuna.stock.domain.model.Recipe
 import com.tiendamuna.stock.domain.usecase.AddRecipeUseCase
 import com.tiendamuna.stock.domain.usecase.DeleteRecipeUseCase
@@ -14,8 +15,10 @@ import com.tiendamuna.stock.presentation.recipe.model.RecipeUiModel
 import com.tiendamuna.stock.presentation.stock.mapper.toUiModel
 import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class RecipeViewModel(
@@ -27,15 +30,29 @@ class RecipeViewModel(
     private val deleteRecipeUseCase: DeleteRecipeUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(RecipeState())
-    val state: StateFlow<RecipeState> = _state.asStateFlow()
+    private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
+    private val _stock = MutableStateFlow<List<Ingredient>>(emptyList())
+    private val _error = MutableStateFlow<String?>(null)
+    private val _isLoading = MutableStateFlow(false)
+
+    val state: StateFlow<RecipeState> = combine(
+        _recipes,
+        _stock,
+        _error,
+        _isLoading
+    ) { recipes, stock, error, isLoading ->
+        RecipeState(
+            recipes = recipes.map { it.toUiModel(stock) },
+            availableIngredients = stock.map { it.toUiModel() },
+            isLoading = isLoading,
+            error = error
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RecipeState())
 
     fun loadRecipes() {
         viewModelScope.launch {
             getRecipesUseCase().collect { recipes ->
-                _state.value = _state.value.copy(
-                    recipes = recipes.map { it.toUiModel() }
-                )
+                _recipes.value = recipes
             }
         }
     }
@@ -43,9 +60,7 @@ class RecipeViewModel(
     fun loadAvailableIngredients() {
         viewModelScope.launch {
             getStockUseCase().collect { ingredients ->
-                _state.value = _state.value.copy(
-                    availableIngredients = ingredients.map { it.toUiModel() }
-                )
+                _stock.value = ingredients
             }
         }
     }
@@ -57,7 +72,7 @@ class RecipeViewModel(
                     try {
                         addRecipeUseCase(event.recipe)
                     } catch (e: Exception) {
-                        _state.value = _state.value.copy(error = e.message)
+                        _error.value = e.message
                     }
                 }
             }
@@ -66,12 +81,12 @@ class RecipeViewModel(
                     try {
                         prepareRecipeUseCase(event.recipe)
                     } catch (e: Exception) {
-                        _state.value = _state.value.copy(error = e.message)
+                        _error.value = e.message
                     }
                 }
             }
             RecipeEvent.ClearError -> {
-                _state.value = _state.value.copy(error = null)
+                _error.value = null
             }
             is RecipeEvent.DeleteRecipe -> {
                 viewModelScope.launch {
@@ -83,7 +98,7 @@ class RecipeViewModel(
                     try {
                         updateRecipeUseCase(event.recipe)
                     } catch (e: Exception) {
-                        _state.value = _state.value.copy(error = e.message)
+                        _error.value = e.message
                     }
                 }
             }

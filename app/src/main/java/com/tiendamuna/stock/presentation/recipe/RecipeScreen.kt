@@ -253,7 +253,14 @@ fun RecipeItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = recipe.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = recipe.name, style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        text = "Costo: ${recipe.costDisplay}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
                 Row {
                     IconButton(onClick = onEdit) {
                         Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit), tint = MaterialTheme.colorScheme.primary)
@@ -265,7 +272,10 @@ fun RecipeItem(
             }
             Spacer(modifier = Modifier.height(8.dp))
             recipe.ingredients.forEach { 
-                Text(text = "• ${it.name}: ${it.quantityDisplay}")
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(text = "• ${it.name}: ${it.quantityDisplay}", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = it.costDisplay, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                }
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = onPrepare, modifier = Modifier.align(Alignment.End)) {

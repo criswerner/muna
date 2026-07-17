@@ -71,7 +71,8 @@ class StockViewModel(
                             name = event.name,
                             quantity = event.quantity,
                             unit = event.unit,
-                            category = event.category
+                            category = event.category,
+                            totalPrice = event.totalPrice
                         )
                         _error.value = null
                     } catch (e: Exception) {
@@ -109,7 +110,13 @@ data class StockState(
 
 sealed class StockEvent {
     data class SearchQueryChanged(val query: String) : StockEvent()
-    data class AddIngredient(val name: String, val quantity: Double, val unit: String, val category: Category) : StockEvent()
+    data class AddIngredient(
+        val name: String, 
+        val quantity: Double, 
+        val unit: String, 
+        val category: Category,
+        val totalPrice: Double
+    ) : StockEvent()
     data class UpdateIngredient(val ingredient: Ingredient) : StockEvent()
     data class DeleteIngredient(val ingredient: Ingredient) : StockEvent()
     object ClearError : StockEvent()

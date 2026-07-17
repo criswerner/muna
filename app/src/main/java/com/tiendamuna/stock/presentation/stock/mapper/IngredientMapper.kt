@@ -10,6 +10,8 @@ fun Ingredient.toUiModel(): IngredientUiModel {
         quantityDisplay = "$quantity $unit",
         rawQuantity = quantity,
         unit = unit,
-        categoryName = category.displayName
+        categoryName = category.displayName,
+        pricePerUnit = pricePerUnit,
+        priceDisplay = "$${String.format("%.2f", pricePerUnit)}/$unit"
     )
 }

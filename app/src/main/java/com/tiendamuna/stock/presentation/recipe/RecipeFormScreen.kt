@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.tiendamuna.stock.R
 import com.tiendamuna.stock.domain.model.Recipe
 import com.tiendamuna.stock.domain.model.RecipeIngredient
+import com.tiendamuna.stock.domain.util.UnitConverter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +69,21 @@ fun RecipeFormScreen(
     }
     
     var showIngredientPicker by remember { mutableStateOf(false) }
+
+    // Live cost estimation
+    val estimatedCost = remember(selectedIngredients, state.availableIngredients) {
+        selectedIngredients.sumOf { ing ->
+            val stockItem = state.availableIngredients.find { it.id == ing.ingredientId }
+            if (stockItem != null) {
+                val convertedQuantity = UnitConverter.convert(
+                    amount = ing.quantityRequired,
+                    fromUnitSymbol = ing.unit,
+                    toUnitSymbol = stockItem.unit
+                )
+                convertedQuantity * stockItem.pricePerUnit
+            } else 0.0
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -122,7 +138,14 @@ fun RecipeFormScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Ingredientes", style = MaterialTheme.typography.titleMedium) // Could add resource
+                Column {
+                    Text(text = "Ingredientes", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = "Costo estimado: $${String.format("%.2f", estimatedCost)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
                 Button(
                     onClick = { showIngredientPicker = true },
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)

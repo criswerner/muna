@@ -7,32 +7,53 @@ import com.tiendamuna.stock.domain.util.UnitConverter
 import kotlinx.coroutines.flow.first
 
 class AddIngredientUseCase(private val repository: StockRepository) {
-    suspend operator fun invoke(name: String, quantity: Double, unit: String, category: Category = Category.OTHERS) {
+    suspend operator fun invoke(
+        name: String, 
+        quantity: Double, 
+        unit: String, 
+        category: Category = Category.OTHERS,
+        totalPrice: Double = 0.0
+    ) {
         if (name.isBlank()) throw IllegalArgumentException("El nombre no puede estar vacío")
-        if (quantity < 0) throw IllegalArgumentException("La cantidad no puede ser negativa")
+        if (quantity <= 0) throw IllegalArgumentException("La cantidad debe ser mayor a 0")
+        
+        val unitPriceForAddedBatch = totalPrice / quantity
         
         val currentStock = repository.getStock().first()
         val existingIngredient = currentStock.find { it.name.trim().lowercase() == name.trim().lowercase() }
         
         if (existingIngredient != null) {
-            // Si el ingrediente existe, intentamos combinar las cantidades
             if (UnitConverter.areCompatible(unit, existingIngredient.unit)) {
-                val convertedQuantity = UnitConverter.convert(
+                val convertedAddedQuantity = UnitConverter.convert(
                     amount = quantity,
                     fromUnitSymbol = unit,
                     toUnitSymbol = existingIngredient.unit
                 )
+                
+                // Calculamos el nuevo precio promedio ponderado
+                val totalValueExisting = existingIngredient.quantity * existingIngredient.pricePerUnit
+                val totalValueAdded = totalPrice 
+                val newTotalQuantity = existingIngredient.quantity + convertedAddedQuantity
+                
+                val newWeightedUnitPrice = (totalValueExisting + totalValueAdded) / newTotalQuantity
+                
                 val updatedIngredient = existingIngredient.copy(
-                    quantity = existingIngredient.quantity + convertedQuantity
+                    quantity = newTotalQuantity,
+                    pricePerUnit = newWeightedUnitPrice
                 )
                 repository.updateIngredient(updatedIngredient)
             } else {
-                // Si las unidades no son compatibles (ej: kg vs litros), lanzamos error
                 throw IllegalArgumentException("Ya existe '$name' con una unidad incompatible (${existingIngredient.unit}). No se puede combinar.")
             }
         } else {
-            // Si no existe, lo agregamos normalmente
-            val ingredient = Ingredient(name = name, quantity = quantity, unit = unit, category = category)
+            // New ingredient
+            val ingredient = Ingredient(
+                name = name, 
+                quantity = quantity, 
+                unit = unit, 
+                category = category,
+                pricePerUnit = unitPriceForAddedBatch
+            )
             repository.addIngredient(ingredient)
         }
     }

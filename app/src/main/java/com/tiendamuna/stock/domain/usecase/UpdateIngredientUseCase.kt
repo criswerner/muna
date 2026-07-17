@@ -8,6 +8,7 @@ class UpdateIngredientUseCase(private val repository: StockRepository) {
     suspend operator fun invoke(ingredient: Ingredient) {
         if (ingredient.name.isBlank()) throw IllegalArgumentException("El nombre no puede estar vacío")
         if (ingredient.quantity < 0) throw IllegalArgumentException("La cantidad no puede ser negativa")
+        if (ingredient.pricePerUnit < 0) throw IllegalArgumentException("El precio no puede ser negativo")
         
         val currentStock = repository.getStock().first()
         val nameAlreadyTaken = currentStock.any { 

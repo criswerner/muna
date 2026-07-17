@@ -23,7 +23,8 @@ class SharedPrefsStockDataSource(context: Context) : StockDataSource {
                     name = obj.getString("name"),
                     quantity = obj.getDouble("quantity"),
                     unit = obj.getString("unit"),
-                    category = Category.fromName(obj.optString("category", Category.OTHERS.name))
+                    category = Category.fromName(obj.optString("category", Category.OTHERS.name)),
+                    pricePerUnit = obj.optDouble("pricePerUnit", 0.0)
                 )
             )
         }
@@ -39,6 +40,7 @@ class SharedPrefsStockDataSource(context: Context) : StockDataSource {
             obj.put("quantity", it.quantity)
             obj.put("unit", it.unit)
             obj.put("category", it.category.name)
+            obj.put("pricePerUnit", it.pricePerUnit)
             array.put(obj)
         }
         prefs.edit { putString("ingredients_json", array.toString()) }

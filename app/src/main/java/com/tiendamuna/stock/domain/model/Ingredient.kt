@@ -5,5 +5,6 @@ data class Ingredient(
     val name: String,
     val quantity: Double,
     val unit: String,
-    val category: Category = Category.OTHERS
+    val category: Category = Category.OTHERS,
+    val pricePerUnit: Double = 0.0
 )
