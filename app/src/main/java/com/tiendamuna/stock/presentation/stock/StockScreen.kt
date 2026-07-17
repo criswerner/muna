@@ -291,7 +291,8 @@ fun EditIngredientDialog(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onDismiss) { Text("Cancelar") }
+                    TextButton(onClick = onDismiss) { Text(
+                        stringResource(R.string.cancel)) }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
@@ -307,7 +308,9 @@ fun EditIngredientDialog(
                         },
                         enabled = name.isNotBlank() && quantity.toDoubleOrNull() != null
                     ) {
-                        Text("Guardar")
+                        Text(
+                            stringResource(R.string.save)
+                        )
                     }
                 }
             }

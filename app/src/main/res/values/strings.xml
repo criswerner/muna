@@ -24,6 +24,10 @@
     <string name="unit_field">Unidad</string>
     <string name="category_field">Categoría</string>
 
+    <string name="cancel">Cancelar</string>
+    <string name="edit">Editar</string>
+    <string name="delete">Borrar</string>
+    <string name="save">Guardar</string>
 
 
 </resources>
