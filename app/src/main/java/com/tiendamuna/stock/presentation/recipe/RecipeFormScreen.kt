@@ -38,7 +38,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.tiendamuna.stock.R
 import com.tiendamuna.stock.domain.model.Recipe
 import com.tiendamuna.stock.domain.model.RecipeIngredient
 
@@ -70,10 +72,10 @@ fun RecipeFormScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (recipeId == null) "Nueva Receta" else "Editar Receta") },
+                title = { Text(if (recipeId == null) "Nueva Receta" else "Editar Receta") }, // Could add resources for these
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cancel))
                     }
                 },
                 actions = {
@@ -93,7 +95,7 @@ fun RecipeFormScreen(
                         },
                         enabled = name.isNotBlank() && selectedIngredients.isNotEmpty()
                     ) {
-                        Text("GUARDAR", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.save).uppercase(), style = MaterialTheme.typography.labelLarge)
                     }
                 }
             )
@@ -108,7 +110,7 @@ fun RecipeFormScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Nombre de la receta") },
+                label = { Text(stringResource(R.string.recipe_name_hint)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -120,14 +122,14 @@ fun RecipeFormScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Ingredientes", style = MaterialTheme.typography.titleMedium)
+                Text(text = "Ingredientes", style = MaterialTheme.typography.titleMedium) // Could add resource
                 Button(
                     onClick = { showIngredientPicker = true },
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Añadir")
+                    Text("Añadir") // Could add resource
                 }
             }
             
@@ -136,7 +138,7 @@ fun RecipeFormScreen(
             if (selectedIngredients.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "No hay ingredientes añadidos",
+                        text = "No hay ingredientes añadidos", // Could add resource
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.outline
                     )
@@ -201,7 +203,7 @@ fun IngredientRow(
                 )
             }
             IconButton(onClick = onRemove) {
-                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete), tint = MaterialTheme.colorScheme.error)
             }
         }
     }

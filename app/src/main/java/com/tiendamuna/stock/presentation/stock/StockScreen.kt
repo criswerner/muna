@@ -35,8 +35,8 @@ fun UnitSelector(
         OutlinedTextField(
             value = selectedUnit,
             onValueChange = {},
-            readOnly = false,
-            label = { Text("Unidad") },
+            readOnly = true,
+            label = { Text(stringResource(R.string.unit_field)) },
             modifier = Modifier.fillMaxWidth().clickable { expanded = true },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
         )
@@ -72,7 +72,7 @@ fun CategorySelector(
             value = selectedCategory.displayName,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Categoría") },
+            label = { Text(stringResource(R.string.category_field)) },
             modifier = Modifier.fillMaxWidth().clickable { expanded = true },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
         )
@@ -110,13 +110,13 @@ fun StockScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(text = "Alta de Stock", style = MaterialTheme.typography.headlineMedium)
+        Text(text = stringResource(R.string.title_add_stock), style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
 
         state.error?.let { error ->
             Text(text = error, color = Color.Red, style = MaterialTheme.typography.bodySmall)
             Button(onClick = { viewModel.onEvent(StockEvent.ClearError) }) {
-                Text("Limpiar Error")
+                Text("OK") // Simple enough or could add R.string.ok
             }
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -124,9 +124,7 @@ fun StockScreen(
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text(
-                stringResource(R.string.ingredient_name_hint)
-            ) },
+            label = { Text(stringResource(R.string.ingredient_name_hint)) },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -135,9 +133,7 @@ fun StockScreen(
             OutlinedTextField(
                 value = quantity,
                 onValueChange = { quantity = it },
-                label = { Text(
-                    stringResource(R.string.quantity_field)
-                ) },
+                label = { Text(stringResource(R.string.quantity_field)) },
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -167,9 +163,7 @@ fun StockScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                stringResource(R.string.ingredient_add_stock_button)
-            )
+            Text(stringResource(R.string.ingredient_add_stock_button))
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -185,9 +179,7 @@ fun StockScreen(
             OutlinedTextField(
                 value = state.searchQuery,
                 onValueChange = { viewModel.onEvent(StockEvent.SearchQueryChanged(it)) },
-                placeholder = { Text(
-                    stringResource(R.string.ingredient_search_hint)
-                ) },
+                placeholder = { Text(stringResource(R.string.ingredient_search_hint)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 modifier = Modifier.weight(1.5f),
                 singleLine = true,
@@ -259,20 +251,14 @@ fun EditIngredientDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = {
-                        Text(
-                            stringResource(R.string.name_field)
-                        )
-                    },
+                    label = { Text(stringResource(R.string.name_field)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = quantity,
                     onValueChange = { quantity = it },
-                    label = { Text(
-                        stringResource(R.string.quantity_field)
-                    ) },
+                    label = { Text(stringResource(R.string.quantity_field)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -291,8 +277,9 @@ fun EditIngredientDialog(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onDismiss) { Text(
-                        stringResource(R.string.cancel)) }
+                    TextButton(onClick = onDismiss) { 
+                        Text(stringResource(R.string.cancel)) 
+                    }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
@@ -308,9 +295,7 @@ fun EditIngredientDialog(
                         },
                         enabled = name.isNotBlank() && quantity.toDoubleOrNull() != null
                     ) {
-                        Text(
-                            stringResource(R.string.save)
-                        )
+                        Text(stringResource(R.string.save))
                     }
                 }
             }
@@ -346,10 +331,10 @@ fun StockItem(
             }
             Row {
                 IconButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit), tint = MaterialTheme.colorScheme.primary)
                 }
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = MaterialTheme.colorScheme.error)
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete), tint = MaterialTheme.colorScheme.error)
                 }
             }
         }

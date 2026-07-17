@@ -13,8 +13,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.tiendamuna.stock.R
 import com.tiendamuna.stock.domain.model.Recipe
 import com.tiendamuna.stock.domain.model.RecipeIngredient
 import com.tiendamuna.stock.domain.model.MeasureUnit
@@ -38,7 +40,7 @@ fun RecipeScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = onNavigateToCreate) {
-                Icon(Icons.Default.Add, contentDescription = "Nueva Receta")
+                Icon(Icons.Default.Add, contentDescription = "Nueva Receta") // Could use resource
             }
         }
     ) { padding ->
@@ -48,13 +50,13 @@ fun RecipeScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            Text(text = "Mis Recetas", style = MaterialTheme.typography.headlineMedium)
+            Text(text = stringResource(R.string.title_recipes), style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(16.dp))
 
             state.error?.let { error ->
                 Text(text = error, color = Color.Red)
                 Button(onClick = { viewModel.onEvent(RecipeEvent.ClearError) }) {
-                    Text("Limpiar Error")
+                    Text("OK")
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -126,7 +128,7 @@ fun IngredientPicker(
             modifier = Modifier.fillMaxWidth().padding(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = "Seleccionar Ingrediente", style = MaterialTheme.typography.titleMedium)
+                Text(text = "Seleccionar Ingrediente", style = MaterialTheme.typography.titleMedium) // Could use resource
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Box {
@@ -136,7 +138,7 @@ fun IngredientPicker(
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth().clickable { ingredientExpanded = true },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = ingredientExpanded) },
-                        label = { Text("Ingrediente") }
+                        label = { Text(stringResource(R.string.name_field)) }
                     )
                     DropdownMenu(expanded = ingredientExpanded, onDismissRequest = { ingredientExpanded = false }) {
                         available.forEach { ingredient ->
@@ -158,7 +160,7 @@ fun IngredientPicker(
                     OutlinedTextField(
                         value = quantity,
                         onValueChange = { quantity = it },
-                        label = { Text("Cantidad") },
+                        label = { Text(stringResource(R.string.quantity_field)) },
                         modifier = Modifier.weight(1f),
                         isError = quantity.isNotEmpty() && (quantity.toDoubleOrNull() ?: 0.0) <= 0.0
                     )
@@ -168,7 +170,7 @@ fun IngredientPicker(
                             value = selectedUnit,
                             onValueChange = {},
                             readOnly = true,
-                            label = { Text("Unidad") },
+                            label = { Text(stringResource(R.string.unit_field)) },
                             modifier = Modifier.fillMaxWidth().clickable { unitExpanded = true },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded) }
                         )
@@ -209,7 +211,7 @@ fun IngredientPicker(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onDismiss) { Text("Cerrar") }
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
                     Button(
                         onClick = {
                             selectedIngredient?.let {
@@ -254,10 +256,10 @@ fun RecipeItem(
                 Text(text = recipe.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
                 Row {
                     IconButton(onClick = onEdit) {
-                        Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary)
+                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit), tint = MaterialTheme.colorScheme.primary)
                     }
                     IconButton(onClick = onDelete) {
-                        Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = MaterialTheme.colorScheme.error)
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete), tint = MaterialTheme.colorScheme.error)
                     }
                 }
             }
