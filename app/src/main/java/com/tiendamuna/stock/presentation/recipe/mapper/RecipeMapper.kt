@@ -16,7 +16,10 @@ fun Recipe.toUiModel(stock: List<Ingredient>): RecipeUiModel {
         ingredients = uiIngredients,
         instructions = instructions,
         totalCost = totalCost,
-        costDisplay = "$${String.format("%.2f", totalCost)}"
+        costDisplay = "$${String.format("%.2f", totalCost)}",
+        yieldDisplay = "$yieldQuantity $yieldUnit",
+        yieldQuantity = yieldQuantity,
+        yieldUnit = yieldUnit
     )
 }
 

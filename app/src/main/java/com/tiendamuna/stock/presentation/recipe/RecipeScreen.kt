@@ -256,7 +256,7 @@ fun RecipeItem(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = recipe.name, style = MaterialTheme.typography.titleLarge)
                     Text(
-                        text = "Costo: ${recipe.costDisplay}",
+                        text = "Rinde: ${recipe.yieldDisplay} • Costo: ${recipe.costDisplay}",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
                     )

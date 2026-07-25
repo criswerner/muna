@@ -35,7 +35,9 @@ class SharedPrefsRecipeDataSource(context: Context) : RecipeDataSource {
                     id = obj.getString("id"),
                     name = obj.getString("name"),
                     instructions = obj.optString("instructions", ""),
-                    ingredients = ingredients
+                    ingredients = ingredients,
+                    yieldQuantity = obj.optDouble("yieldQuantity", 1.0),
+                    yieldUnit = obj.optString("yieldUnit", "u.")
                 )
             )
         }
@@ -49,6 +51,8 @@ class SharedPrefsRecipeDataSource(context: Context) : RecipeDataSource {
             obj.put("id", recipe.id)
             obj.put("name", recipe.name)
             obj.put("instructions", recipe.instructions)
+            obj.put("yieldQuantity", recipe.yieldQuantity)
+            obj.put("yieldUnit", recipe.yieldUnit)
             
             val ingredientsArray = JSONArray()
             recipe.ingredients.forEach { ing ->

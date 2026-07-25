@@ -9,7 +9,10 @@ data class RecipeUiModel(
     val ingredients: List<RecipeIngredientUiModel>,
     val instructions: String,
     val totalCost: Double,
-    val costDisplay: String
+    val costDisplay: String,
+    val yieldDisplay: String,
+    val yieldQuantity: Double,
+    val yieldUnit: String
 )
 
 @Immutable

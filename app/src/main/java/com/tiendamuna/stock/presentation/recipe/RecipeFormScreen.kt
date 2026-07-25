@@ -41,9 +41,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tiendamuna.stock.R
+import com.tiendamuna.stock.domain.model.MeasureUnit
 import com.tiendamuna.stock.domain.model.Recipe
 import com.tiendamuna.stock.domain.model.RecipeIngredient
 import com.tiendamuna.stock.domain.util.UnitConverter
+import com.tiendamuna.stock.presentation.stock.UnitSelector
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,6 +62,9 @@ fun RecipeFormScreen(
     }
 
     var name by remember { mutableStateOf(initialRecipe?.name ?: "") }
+    var yieldQuantity by remember { mutableStateOf(initialRecipe?.yieldQuantity?.toString() ?: "1.0") }
+    var yieldUnit by remember { mutableStateOf(initialRecipe?.yieldUnit ?: MeasureUnit.UNIT.symbol) }
+
     var selectedIngredients by remember { 
         mutableStateOf(
             initialRecipe?.ingredients?.map { 
@@ -100,7 +105,9 @@ fun RecipeFormScreen(
                             val recipe = Recipe(
                                 id = recipeId ?: java.util.UUID.randomUUID().toString(),
                                 name = name,
-                                ingredients = selectedIngredients
+                                ingredients = selectedIngredients,
+                                yieldQuantity = yieldQuantity.toDoubleOrNull() ?: 1.0,
+                                yieldUnit = yieldUnit
                             )
                             if (recipeId == null) {
                                 viewModel.onEvent(RecipeEvent.AddRecipe(recipe))
@@ -109,7 +116,7 @@ fun RecipeFormScreen(
                             }
                             onNavigateBack()
                         },
-                        enabled = name.isNotBlank() && selectedIngredients.isNotEmpty()
+                        enabled = name.isNotBlank() && selectedIngredients.isNotEmpty() && yieldQuantity.toDoubleOrNull() != null
                     ) {
                         Text(stringResource(R.string.save).uppercase(), style = MaterialTheme.typography.labelLarge)
                     }
@@ -130,6 +137,24 @@ fun RecipeFormScreen(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = yieldQuantity,
+                    onValueChange = { yieldQuantity = it },
+                    label = { Text("Rendimiento (ej: 12, 1.5)") },
+                    modifier = Modifier.weight(1f),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                UnitSelector(
+                    selectedUnit = yieldUnit,
+                    onUnitSelected = { yieldUnit = it },
+                    modifier = Modifier.weight(0.6f)
+                )
+            }
             
             Spacer(modifier = Modifier.height(24.dp))
             
