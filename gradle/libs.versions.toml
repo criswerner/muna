@@ -7,6 +7,7 @@ espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.11.0"
 activityCompose = "1.13.0"
 navigationCompose = "2.8.8"
+coreSplashscreen = "1.2.0"
 kotlin = "2.2.10"
 composeBom = "2026.02.01"
 appcompat = "1.6.1"
@@ -31,6 +32,7 @@ androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-te
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 lint-api = { group = "com.android.tools.lint", name = "lint-api", version.ref = "androidLint" }

@@ -2,10 +2,16 @@ package com.tiendamuna.stock.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Giraffe Logo Palette
+val GiraffePrimary = Color(0xFF8B5E3C)
+val GiraffeSecondary = Color(0xFFE6CCB2)
+val GiraffeTertiary = Color(0xFF4FC3F7)
+val GiraffeBackground = Color(0xFFFDF5E6)
+val GiraffeSurface = Color(0xFFFFFFFF)
+val GiraffeOnBackground = Color(0xFF4E342E)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Dark Mode variants (simplified)
+val GiraffePrimaryDark = Color(0xFFD7CCC8)
+val GiraffeSecondaryDark = Color(0xFF8D6E63)
+val GiraffeBackgroundDark = Color(0xFF2D2926)
+val GiraffeSurfaceDark = Color(0xFF3E3A36)
