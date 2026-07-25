@@ -9,6 +9,9 @@ activityCompose = "1.13.0"
 navigationCompose = "2.8.8"
 kotlin = "2.2.10"
 composeBom = "2026.02.01"
+appcompat = "1.6.1"
+material = "1.10.0"
+androidLint = "32.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -28,7 +31,14 @@ androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-te
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+lint-api = { group = "com.android.tools.lint", name = "lint-api", version.ref = "androidLint" }
+lint-checks = { group = "com.android.tools.lint", name = "lint-checks", version.ref = "androidLint" }
+lint-tests = { group = "com.android.tools.lint", name = "lint-tests", version.ref = "androidLint" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

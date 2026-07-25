@@ -53,6 +53,14 @@ android {
     buildFeatures {
         compose = true
     }
+
+    lint {
+        abortOnError = true
+        checkReleaseBuilds = false
+        warningsAsErrors = true
+        textReport = true
+        textOutput = file("stdout")
+    }
 }
 
 dependencies {
@@ -67,6 +75,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
+
+    lintChecks(project(":lintrules"))
+
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
