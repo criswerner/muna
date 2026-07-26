@@ -46,6 +46,7 @@ import com.tiendamuna.stock.domain.model.Recipe
 import com.tiendamuna.stock.domain.model.RecipeIngredient
 import com.tiendamuna.stock.domain.util.UnitConverter
 import com.tiendamuna.stock.presentation.stock.UnitSelector
+import com.tiendamuna.stock.utils.empty
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +62,7 @@ fun RecipeFormScreen(
         state.recipes.find { it.id == recipeId }
     }
 
-    var name by remember { mutableStateOf(initialRecipe?.name ?: "") }
+    var name by remember { mutableStateOf(initialRecipe?.name ?: String.empty()) }
     var yieldQuantity by remember { mutableStateOf(initialRecipe?.yieldQuantity?.toString() ?: "1.0") }
     var yieldUnit by remember { mutableStateOf(initialRecipe?.yieldUnit ?: MeasureUnit.UNIT.symbol) }
 
@@ -228,6 +229,7 @@ fun RecipeFormScreen(
         )
     }
 }
+
 
 @Composable
 fun IngredientRow(

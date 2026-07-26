@@ -23,6 +23,7 @@ import com.tiendamuna.stock.domain.model.MeasureUnit
 import com.tiendamuna.stock.domain.util.UnitConverter
 import com.tiendamuna.stock.presentation.recipe.model.RecipeUiModel
 import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
+import com.tiendamuna.stock.utils.empty
 
 @Composable
 fun RecipeScreen(
@@ -171,14 +172,14 @@ fun IngredientPicker(
     onDismiss: () -> Unit,
     onSelected: (RecipeIngredient) -> Unit
 ) {
-    var quantity by remember { mutableStateOf("") }
+    var quantity by remember { mutableStateOf(String.empty()) }
     var selectedIngredient by remember { mutableStateOf<IngredientUiModel?>(null) }
-    var selectedUnit by remember { mutableStateOf("") }
+    var selectedUnit by remember { mutableStateOf(String.empty()) }
     var ingredientExpanded by remember { mutableStateOf(false) }
     var unitExpanded by remember { mutableStateOf(false) }
 
     val compatibleUnits = remember(selectedIngredient) {
-        val ingredientUnit = MeasureUnit.fromSymbol(selectedIngredient?.unit ?: "")
+        val ingredientUnit = MeasureUnit.fromSymbol(selectedIngredient?.unit ?: String.empty())
         MeasureUnit.entries.filter { it.type == ingredientUnit.type }.map { it.symbol }
     }
 

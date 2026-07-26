@@ -1,3 +1,6 @@
 package com.tiendamuna.stock.utils
 
-fun String.empty() = ""
+import android.annotation.SuppressLint
+
+@SuppressLint("UseStringEmptyExtension")
+fun String.Companion.empty(): String = ""

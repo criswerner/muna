@@ -8,6 +8,7 @@ import com.android.tools.lint.detector.api.CURRENT_API
 class CustomIssueRegistry : IssueRegistry() {
     override val issues = listOf(
         LiveDataUsageDetector.ISSUE,
+        EmptyStringDetector.ISSUE
         // ... otras reglas que tengas
     )
 
