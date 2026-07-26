@@ -79,7 +79,7 @@ class RecipeViewModel(
             is RecipeEvent.PrepareRecipe -> {
                 viewModelScope.launch {
                     try {
-                        prepareRecipeUseCase(event.recipe)
+                        prepareRecipeUseCase(event.recipe, event.batches)
                     } catch (e: Exception) {
                         _error.value = e.message
                     }
@@ -117,6 +117,6 @@ sealed class RecipeEvent {
     data class AddRecipe(val recipe: Recipe) : RecipeEvent()
     data class UpdateRecipe(val recipe: Recipe) : RecipeEvent()
     data class DeleteRecipe(val recipe: Recipe) : RecipeEvent()
-    data class PrepareRecipe(val recipe: Recipe) : RecipeEvent()
+    data class PrepareRecipe(val recipe: Recipe, val batches: Double = 1.0) : RecipeEvent()
     object ClearError : RecipeEvent()
 }

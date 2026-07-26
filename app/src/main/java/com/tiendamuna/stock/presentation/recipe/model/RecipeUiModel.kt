@@ -12,7 +12,8 @@ data class RecipeUiModel(
     val costDisplay: String,
     val yieldDisplay: String,
     val yieldQuantity: Double,
-    val yieldUnit: String
+    val yieldUnit: String,
+    val costPerYieldUnitDisplay: String
 )
 
 @Immutable

@@ -10,6 +10,8 @@ import com.tiendamuna.stock.presentation.recipe.model.RecipeUiModel
 fun Recipe.toUiModel(stock: List<Ingredient>): RecipeUiModel {
     val uiIngredients = ingredients.map { it.toUiModel(stock) }
     val totalCost = uiIngredients.sumOf { it.cost }
+    val costPerUnit = if (yieldQuantity > 0) totalCost / yieldQuantity else 0.0
+    
     return RecipeUiModel(
         id = id,
         name = name,
@@ -19,7 +21,8 @@ fun Recipe.toUiModel(stock: List<Ingredient>): RecipeUiModel {
         costDisplay = "$${String.format("%.2f", totalCost)}",
         yieldDisplay = "$yieldQuantity $yieldUnit",
         yieldQuantity = yieldQuantity,
-        yieldUnit = yieldUnit
+        yieldUnit = yieldUnit,
+        costPerYieldUnitDisplay = "$${String.format("%.2f", costPerUnit)}/$yieldUnit"
     )
 }
 

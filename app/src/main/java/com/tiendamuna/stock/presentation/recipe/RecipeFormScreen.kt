@@ -165,8 +165,12 @@ fun RecipeFormScreen(
             ) {
                 Column {
                     Text(text = "Ingredientes", style = MaterialTheme.typography.titleMedium)
+                    val costPerUnit = remember(estimatedCost, yieldQuantity) {
+                        val qty = yieldQuantity.toDoubleOrNull() ?: 0.0
+                        if (qty > 0) estimatedCost / qty else 0.0
+                    }
                     Text(
-                        text = "Costo estimado: $${String.format("%.2f", estimatedCost)}",
+                        text = "Costo: $${String.format("%.2f", estimatedCost)} ($${String.format("%.2f", costPerUnit)}/$yieldUnit)",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )

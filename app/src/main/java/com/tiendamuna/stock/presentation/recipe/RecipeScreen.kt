@@ -31,6 +31,7 @@ fun RecipeScreen(
     onNavigateToEdit: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+    var recipeToPrepare by remember { mutableStateOf<RecipeUiModel?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.loadRecipes()
@@ -66,9 +67,7 @@ fun RecipeScreen(
                     RecipeItem(
                         recipe = recipe,
                         onPrepare = { 
-                            // Map back to domain model for the event
-                            val domainRecipe = recipe.toDomain()
-                            viewModel.onEvent(RecipeEvent.PrepareRecipe(domainRecipe)) 
+                            recipeToPrepare = recipe
                         },
                         onDelete = {
                             viewModel.onEvent(RecipeEvent.DeleteRecipe(recipe.toDomain()))
@@ -77,6 +76,73 @@ fun RecipeScreen(
                             onNavigateToEdit(recipe.id)
                         }
                     )
+                }
+            }
+        }
+    }
+
+    if (recipeToPrepare != null) {
+        PrepareRecipeDialog(
+            recipe = recipeToPrepare!!,
+            onDismiss = { recipeToPrepare = null },
+            onConfirm = { batches ->
+                viewModel.onEvent(RecipeEvent.PrepareRecipe(recipeToPrepare!!.toDomain(), batches))
+                recipeToPrepare = null
+            }
+        )
+    }
+}
+
+@Composable
+fun PrepareRecipeDialog(
+    recipe: RecipeUiModel,
+    onDismiss: () -> Unit,
+    onConfirm: (Double) -> Unit
+) {
+    var batches by remember { mutableStateOf("1") }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = "Preparar ${recipe.name}", style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "¿Cuántos lotes deseas preparar?", 
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "Total a producir: ${(batches.toDoubleOrNull() ?: 0.0) * recipe.yieldQuantity} ${recipe.yieldUnit}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = batches,
+                    onValueChange = { batches = it },
+                    label = { Text("Cantidad de lotes") },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = batches.isNotEmpty() && (batches.toDoubleOrNull() ?: 0.0) <= 0.0
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            onConfirm(batches.toDoubleOrNull() ?: 1.0)
+                        },
+                        enabled = batches.toDoubleOrNull() != null && batches.toDouble() > 0
+                    ) {
+                        Text("Confirmar")
+                    }
                 }
             }
         }
@@ -256,7 +322,7 @@ fun RecipeItem(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = recipe.name, style = MaterialTheme.typography.titleLarge)
                     Text(
-                        text = "Rinde: ${recipe.yieldDisplay} • Costo: ${recipe.costDisplay}",
+                        text = "Rinde: ${recipe.yieldDisplay} • Costo: ${recipe.costDisplay} (${recipe.costPerYieldUnitDisplay})",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
