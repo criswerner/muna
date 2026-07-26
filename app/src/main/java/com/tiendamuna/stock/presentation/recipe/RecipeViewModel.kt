@@ -3,8 +3,10 @@ package com.tiendamuna.stock.presentation.recipe
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tiendamuna.stock.domain.model.Ingredient
+import com.tiendamuna.stock.domain.model.PreparationHistory
 import com.tiendamuna.stock.domain.model.Recipe
 import com.tiendamuna.stock.domain.model.RecipeIngredient
+import com.tiendamuna.stock.domain.usecase.AddHistoryEntryUseCase
 import com.tiendamuna.stock.domain.usecase.AddRecipeUseCase
 import com.tiendamuna.stock.domain.usecase.DeleteRecipeUseCase
 import com.tiendamuna.stock.domain.usecase.GetRecipesUseCase
@@ -28,7 +30,8 @@ class RecipeViewModel(
     private val prepareRecipeUseCase: PrepareRecipeUseCase,
     private val getStockUseCase: GetStockUseCase,
     private val updateRecipeUseCase: UpdateRecipeUseCase,
-    private val deleteRecipeUseCase: DeleteRecipeUseCase
+    private val deleteRecipeUseCase: DeleteRecipeUseCase,
+    private val addHistoryEntryUseCase: AddHistoryEntryUseCase
 ) : ViewModel() {
 
     private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
@@ -93,6 +96,30 @@ class RecipeViewModel(
                 viewModelScope.launch {
                     try {
                         prepareRecipeUseCase(event.recipe, event.batches)
+                        
+                        // Calculate cost for history (based on current stock prices)
+                        val totalCost = event.recipe.ingredients.sumOf { ing ->
+                            val stockItem = _stock.value.find { it.id == ing.ingredientId }
+                            if (stockItem != null) {
+                                val converted = com.tiendamuna.stock.domain.util.UnitConverter.convert(
+                                    ing.quantityRequired * event.batches,
+                                    ing.unit,
+                                    stockItem.unit
+                                )
+                                converted * stockItem.pricePerUnit
+                            } else 0.0
+                        }
+                        
+                        addHistoryEntryUseCase(
+                            PreparationHistory(
+                                recipeId = event.recipe.id,
+                                recipeName = event.recipe.name,
+                                batchesPrepared = event.batches,
+                                totalProducedQuantity = event.recipe.yieldQuantity * event.batches,
+                                yieldUnit = event.recipe.yieldUnit,
+                                totalCost = totalCost
+                            )
+                        )
                     } catch (e: Exception) {
                         _error.value = e.message
                     }

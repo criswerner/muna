@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -27,6 +28,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.tiendamuna.stock.presentation.history.HistoryScreen
+import com.tiendamuna.stock.presentation.history.HistoryViewModel
 import com.tiendamuna.stock.presentation.recipe.RecipeFormScreen
 import com.tiendamuna.stock.presentation.recipe.RecipeScreen
 import com.tiendamuna.stock.presentation.recipe.RecipeViewModel
@@ -73,8 +76,18 @@ class MainActivity : ComponentActivity() {
                                 container.prepareRecipeUseCase,
                                 container.getStockUseCase,
                                 container.updateRecipeUseCase,
-                                container.deleteRecipeUseCase
+                                container.deleteRecipeUseCase,
+                                container.addHistoryEntryUseCase
                             ) as T
+                        }
+                    }
+                )
+
+                val historyViewModel: HistoryViewModel = viewModel(
+                    factory = object : ViewModelProvider.Factory {
+                        @Suppress("UNCHECKED_CAST")
+                        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                            return HistoryViewModel(container.getHistoryUseCase) as T
                         }
                     }
                 )
@@ -83,7 +96,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
                         // Only show bottom bar on main screens
-                        if (currentRoute == "stock" || currentRoute == "recipes") {
+                        if (currentRoute == "stock" || currentRoute == "recipes" || currentRoute == "history") {
                             NavigationBar {
                                 NavigationBarItem(
                                     selected = currentRoute == "stock",
@@ -97,10 +110,7 @@ class MainActivity : ComponentActivity() {
                                         }
                                     },
                                     icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Stock") },
-                                    label = { Text(
-                                        stringResource(R.string.title_stock)
-                                    )
-                                    }
+                                    label = { Text(stringResource(R.string.title_stock)) }
                                 )
                                 NavigationBarItem(
                                     selected = currentRoute == "recipes",
@@ -114,11 +124,21 @@ class MainActivity : ComponentActivity() {
                                         }
                                     },
                                     icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Recetas") },
-                                    label = {
-                                        Text(
-                                            stringResource(R.string.title_recipes)
-                                        )
-                                    }
+                                    label = { Text(stringResource(R.string.title_recipes)) }
+                                )
+                                NavigationBarItem(
+                                    selected = currentRoute == "history",
+                                    onClick = { 
+                                        if (currentRoute != "history") {
+                                            navController.navigate("history") {
+                                                popUpTo("stock") { saveState = true }
+                                                launchSingleTop = true
+                                                restoreState = true
+                                            }
+                                        }
+                                    },
+                                    icon = { Icon(Icons.Default.History, contentDescription = "Historial") },
+                                    label = { Text("Historial") }
                                 )
                             }
                         }
@@ -138,6 +158,9 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToCreate = { navController.navigate("recipe_form") },
                                 onNavigateToEdit = { id -> navController.navigate("recipe_form?recipeId=$id") }
                             )
+                        }
+                        composable("history") {
+                            HistoryScreen(viewModel = historyViewModel)
                         }
                         composable(
                             route = "recipe_form?recipeId={recipeId}",
