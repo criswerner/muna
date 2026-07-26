@@ -42,7 +42,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tiendamuna.stock.R
 import com.tiendamuna.stock.domain.model.MeasureUnit
-import com.tiendamuna.stock.domain.model.Recipe
 import com.tiendamuna.stock.domain.model.RecipeIngredient
 import com.tiendamuna.stock.domain.util.UnitConverter
 import com.tiendamuna.stock.presentation.stock.UnitSelector
@@ -103,18 +102,15 @@ fun RecipeFormScreen(
                 actions = {
                     TextButton(
                         onClick = {
-                            val recipe = Recipe(
-                                id = recipeId ?: java.util.UUID.randomUUID().toString(),
-                                name = name,
-                                ingredients = selectedIngredients,
-                                yieldQuantity = yieldQuantity.toDoubleOrNull() ?: 1.0,
-                                yieldUnit = yieldUnit
+                            viewModel.onEvent(
+                                RecipeEvent.SaveRecipe(
+                                    id = recipeId,
+                                    name = name,
+                                    ingredients = selectedIngredients,
+                                    yieldQuantity = yieldQuantity.toDoubleOrNull() ?: 1.0,
+                                    yieldUnit = yieldUnit
+                                )
                             )
-                            if (recipeId == null) {
-                                viewModel.onEvent(RecipeEvent.AddRecipe(recipe))
-                            } else {
-                                viewModel.onEvent(RecipeEvent.UpdateRecipe(recipe))
-                            }
                             onNavigateBack()
                         },
                         enabled = name.isNotBlank() && selectedIngredients.isNotEmpty() && yieldQuantity.toDoubleOrNull() != null
