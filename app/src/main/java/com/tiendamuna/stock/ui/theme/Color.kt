@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 // Giraffe Logo Palette
 val GiraffePrimary = Color(0xFF8B5E3C)
-val GiraffeSecondary = Color(0xFFE6CCB2)
+val GiraffeSecondary = Color(0xFFCC9E6A)
 val GiraffeTertiary = Color(0xFF4FC3F7)
 val GiraffeBackground = Color(0xFFFDF5E6)
 val GiraffeSurface = Color(0xFFFFFFFF)
