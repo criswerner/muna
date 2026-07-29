@@ -25,3 +25,4 @@ dependencyResolutionManagement {
 rootProject.name = "Stock"
 include(":app")
 include(":lintrules")
+include(":platform")
