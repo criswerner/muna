@@ -5,7 +5,7 @@ import java.util.UUID
 
 data class PreparationHistory(
     val id: String = UUID.randomUUID().toString(),
-    val recipeId: String,
+    val recipeId: String = "",
     val recipeName: String,
     val batchesPrepared: Double,
     val totalProducedQuantity: Double,

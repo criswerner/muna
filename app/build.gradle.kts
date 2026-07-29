@@ -60,6 +60,7 @@ android {
         warningsAsErrors = true
         textReport = true
         textOutput = file("stdout")
+        baseline = file("lint-baseline.xml")
     }
 }
 
