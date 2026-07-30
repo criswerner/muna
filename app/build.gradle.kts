@@ -79,6 +79,7 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
 
     lintChecks(project(":lintrules"))
+    implementation(project(":platform"))
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

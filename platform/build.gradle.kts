@@ -36,4 +36,5 @@ dependencies {
     implementation(libs.converter.gson)
 
     implementation(libs.okhttp.logging.interceptor)
+    lintChecks(project(":lintrules"))
 }
