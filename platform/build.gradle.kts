@@ -31,7 +31,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
 
     // Retrofit networking core
-    implementation(libs.retrofit)
+    api(libs.retrofit)
     // JSON converter extension
     implementation(libs.converter.gson)
 

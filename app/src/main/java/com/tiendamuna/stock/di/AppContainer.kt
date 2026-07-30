@@ -7,6 +7,8 @@ import com.tiendamuna.stock.data.StockRepositoryImpl
 import com.tiendamuna.stock.data.datasource.local.SharedPrefsHistoryDataSource
 import com.tiendamuna.stock.data.datasource.local.SharedPrefsRecipeDataSource
 import com.tiendamuna.stock.data.datasource.local.SharedPrefsStockDataSource
+import com.tiendamuna.stock.data.datasource.remote.RemoteStockDataSource
+import com.tiendamuna.stock.data.remote.StockApiService
 import com.tiendamuna.stock.domain.usecase.*
 
 /**
@@ -19,9 +21,10 @@ class AppContainer(context: Context) {
     private val stockDataSource = SharedPrefsStockDataSource(context)
     private val recipeDataSource = SharedPrefsRecipeDataSource(context)
     private val historyDataSource = SharedPrefsHistoryDataSource(context)
+    private val remoteStockDataSource = RemoteStockDataSource(createApiService(StockApiService::class.java))
 
     // Repositories
-    val stockRepository = StockRepositoryImpl(stockDataSource)
+    val stockRepository = StockRepositoryImpl(stockDataSource, remoteStockDataSource)
     val recipeRepository = RecipeRepositoryImpl(recipeDataSource)
     val historyRepository = HistoryRepositoryImpl(historyDataSource)
 
