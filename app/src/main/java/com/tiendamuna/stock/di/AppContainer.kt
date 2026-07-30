@@ -1,7 +1,6 @@
 package com.tiendamuna.stock.di
 
 import android.content.Context
-import com.tiendamuna.platform.network.provider.NetworkClient
 import com.tiendamuna.stock.data.HistoryRepositoryImpl
 import com.tiendamuna.stock.data.RecipeRepositoryImpl
 import com.tiendamuna.stock.data.StockRepositoryImpl
@@ -43,15 +42,12 @@ class AppContainer(context: Context) {
     val getHistoryUseCase = GetHistoryUseCase(historyRepository)
     val addHistoryEntryUseCase = AddHistoryEntryUseCase(historyRepository)
 
-    private val networkClient = NetworkClient.Builder(baseUrl = "https://api.tu-backend.com/")
-        .setConnectTimeout(20)
-        .setReadTimeout(30)
-        .setDebug(true) // O usa BuildConfig.DEBUG
-        .enableCache(context)
-        .build()
-
-    // Método para instanciar APIs
-    fun <T> createApiService(serviceClass: Class<T>): T {
-        return networkClient.createService(serviceClass)
+    companion object {
+        /**
+         * Método estático para instanciar APIs usando el cliente global.
+         */
+        fun <T> createApiService(serviceClass: Class<T>): T {
+            return NetworkModule.createService(serviceClass)
+        }
     }
 }
