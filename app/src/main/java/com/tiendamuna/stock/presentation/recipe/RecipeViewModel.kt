@@ -78,6 +78,7 @@ class RecipeViewModel(
                             id = event.id ?: java.util.UUID.randomUUID().toString(),
                             name = event.name,
                             ingredients = event.ingredients,
+                            instructions = event.instructions,
                             yieldQuantity = event.yieldQuantity,
                             yieldUnit = event.yieldUnit
                         )
@@ -150,6 +151,7 @@ sealed class RecipeEvent {
         val ingredients: List<RecipeIngredient>,
         val yieldQuantity: Double,
         val yieldUnit: String,
+        val instructions: String = "",
         val id: String? = null
     ) : RecipeEvent()
     data class DeleteRecipe(val recipe: Recipe) : RecipeEvent()

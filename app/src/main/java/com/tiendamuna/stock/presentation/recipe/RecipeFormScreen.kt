@@ -62,6 +62,7 @@ fun RecipeFormScreen(
     }
 
     var name by remember { mutableStateOf(initialRecipe?.name ?: String.empty()) }
+    var instructions by remember { mutableStateOf(initialRecipe?.instructions ?: String.empty()) }
     var yieldQuantity by remember { mutableStateOf(initialRecipe?.yieldQuantity?.toString() ?: "1.0") }
     var yieldUnit by remember { mutableStateOf(initialRecipe?.yieldUnit ?: MeasureUnit.UNIT.symbol) }
 
@@ -108,7 +109,8 @@ fun RecipeFormScreen(
                                     name = name,
                                     ingredients = selectedIngredients,
                                     yieldQuantity = yieldQuantity.toDoubleOrNull() ?: 1.0,
-                                    yieldUnit = yieldUnit
+                                    yieldUnit = yieldUnit,
+                                    instructions = instructions
                                 )
                             )
                             onNavigateBack()
@@ -152,6 +154,16 @@ fun RecipeFormScreen(
                     modifier = Modifier.weight(0.6f)
                 )
             }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            OutlinedTextField(
+                value = instructions,
+                onValueChange = { instructions = it },
+                label = { Text("Instrucciones de preparación") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3
+            )
             
             Spacer(modifier = Modifier.height(24.dp))
             
