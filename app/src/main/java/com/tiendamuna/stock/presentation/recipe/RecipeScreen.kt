@@ -24,6 +24,7 @@ import com.tiendamuna.stock.domain.util.UnitConverter
 import com.tiendamuna.stock.presentation.recipe.model.RecipeUiModel
 import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
 import com.tiendamuna.stock.utils.empty
+import com.tiendamuna.stock.presentation.common.components.DropDownList
 
 @Composable
 fun RecipeScreen(
@@ -179,8 +180,6 @@ fun IngredientPicker(
     var quantity by remember { mutableStateOf(String.empty()) }
     var selectedIngredient by remember { mutableStateOf<IngredientUiModel?>(null) }
     var selectedUnit by remember { mutableStateOf(String.empty()) }
-    var ingredientExpanded by remember { mutableStateOf(false) }
-    var unitExpanded by remember { mutableStateOf(false) }
 
     val compatibleUnits = remember(selectedIngredient) {
         MeasureUnit.getCompatibleUnits(selectedIngredient?.unit ?: String.empty())
@@ -201,28 +200,17 @@ fun IngredientPicker(
                 Text(text = "Seleccionar Ingrediente", style = MaterialTheme.typography.titleMedium) // Could use resource
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Box {
-                    OutlinedTextField(
-                        value = selectedIngredient?.name ?: "Elegir del stock",
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier.fillMaxWidth().clickable { ingredientExpanded = true },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = ingredientExpanded) },
-                        label = { Text(stringResource(R.string.name_field)) }
-                    )
-                    DropdownMenu(expanded = ingredientExpanded, onDismissRequest = { ingredientExpanded = false }) {
-                        available.forEach { ingredient ->
-                            DropdownMenuItem(
-                                text = { Text("${ingredient.name} (${ingredient.quantityDisplay})") },
-                                onClick = {
-                                    selectedIngredient = ingredient
-                                    selectedUnit = ingredient.unit
-                                    ingredientExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
+                DropDownList(
+                    label = stringResource(R.string.name_field),
+                    selectedItem = selectedIngredient,
+                    items = available,
+                    itemToString = { it?.let { "${it.name} (${it.quantityDisplay})" } ?: "Elegir del stock" },
+                    onItemSelected = { 
+                        selectedIngredient = it
+                        selectedUnit = it?.unit ?: String.empty()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -235,27 +223,15 @@ fun IngredientPicker(
                         isError = quantity.isNotEmpty() && (quantity.toDoubleOrNull() ?: 0.0) <= 0.0
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Box(modifier = Modifier.weight(0.6f)) {
-                        OutlinedTextField(
-                            value = selectedUnit,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text(stringResource(R.string.unit_field)) },
-                            modifier = Modifier.fillMaxWidth().clickable { unitExpanded = true },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded) }
-                        )
-                        DropdownMenu(expanded = unitExpanded, onDismissRequest = { unitExpanded = false }) {
-                            compatibleUnits.forEach { unit ->
-                                DropdownMenuItem(
-                                    text = { Text(unit) },
-                                    onClick = {
-                                        selectedUnit = unit
-                                        unitExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
+                    
+                    DropDownList(
+                        label = stringResource(R.string.unit_field),
+                        selectedItem = selectedUnit,
+                        items = compatibleUnits,
+                        itemToString = { it },
+                        onItemSelected = { selectedUnit = it },
+                        modifier = Modifier.weight(0.6f)
+                    )
                 }
 
                 if (selectedIngredient != null && quantity.isNotEmpty()) {

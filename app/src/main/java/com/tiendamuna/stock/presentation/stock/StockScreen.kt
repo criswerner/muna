@@ -20,78 +20,39 @@ import com.tiendamuna.stock.domain.model.Ingredient
 import com.tiendamuna.stock.domain.model.MeasureUnit
 import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
 import com.tiendamuna.stock.R
+import com.tiendamuna.stock.presentation.common.components.DropDownList
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UnitSelector(
     selectedUnit: String,
     onUnitSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val units = MeasureUnit.getAllSymbols()
-
-    Box(modifier = modifier) {
-        OutlinedTextField(
-            value = selectedUnit,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text(stringResource(R.string.unit_field)) },
-            modifier = Modifier.fillMaxWidth().clickable { expanded = true },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth(0.5f)
-        ) {
-            units.forEach { unit ->
-                DropdownMenuItem(
-                    text = { Text(unit) },
-                    onClick = {
-                        onUnitSelected(unit)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
+    DropDownList(
+        label = stringResource(R.string.unit_field),
+        selectedItem = selectedUnit,
+        items = units,
+        itemToString = { it },
+        onItemSelected = onUnitSelected,
+        modifier = modifier
+    )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategorySelector(
     selectedCategory: Category,
     onCategorySelected: (Category) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box(modifier = modifier) {
-        OutlinedTextField(
-            value = selectedCategory.displayName,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text(stringResource(R.string.category_field)) },
-            modifier = Modifier.fillMaxWidth().clickable { expanded = true },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Category.entries.forEach { category ->
-                DropdownMenuItem(
-                    text = { Text(category.displayName) },
-                    onClick = {
-                        onCategorySelected(category)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
+    DropDownList(
+        label = stringResource(R.string.category_field),
+        selectedItem = selectedCategory,
+        items = Category.entries,
+        itemToString = { it.displayName },
+        onItemSelected = onCategorySelected,
+        modifier = modifier
+    )
 }
 
 @Composable
