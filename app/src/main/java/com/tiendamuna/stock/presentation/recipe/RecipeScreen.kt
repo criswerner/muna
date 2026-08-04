@@ -29,7 +29,8 @@ import com.tiendamuna.stock.utils.empty
 fun RecipeScreen(
     viewModel: RecipeViewModel,
     onNavigateToCreate: () -> Unit,
-    onNavigateToEdit: (String) -> Unit
+    onNavigateToEdit: (String) -> Unit,
+    onNavigateToDetail: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     var recipeToPrepare by remember { mutableStateOf<RecipeUiModel?>(null) }
@@ -75,6 +76,9 @@ fun RecipeScreen(
                         },
                         onEdit = {
                             onNavigateToEdit(recipe.id)
+                        },
+                        onClick = {
+                            onNavigateToDetail(recipe.id)
                         }
                     )
                 }
@@ -306,12 +310,14 @@ fun RecipeItem(
     recipe: RecipeUiModel, 
     onPrepare: () -> Unit,
     onDelete: () -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
+            .clickable { onClick() }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(

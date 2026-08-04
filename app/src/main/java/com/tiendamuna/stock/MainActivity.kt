@@ -30,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tiendamuna.stock.presentation.history.HistoryScreen
 import com.tiendamuna.stock.presentation.history.HistoryViewModel
+import com.tiendamuna.stock.presentation.recipe.RecipeDetailScreen
 import com.tiendamuna.stock.presentation.recipe.RecipeFormScreen
 import com.tiendamuna.stock.presentation.recipe.RecipeScreen
 import com.tiendamuna.stock.presentation.recipe.RecipeViewModel
@@ -156,7 +157,24 @@ class MainActivity : ComponentActivity() {
                             RecipeScreen(
                                 viewModel = recipeViewModel,
                                 onNavigateToCreate = { navController.navigate("recipe_form") },
-                                onNavigateToEdit = { id -> navController.navigate("recipe_form?recipeId=$id") }
+                                onNavigateToEdit = { id -> navController.navigate("recipe_form?recipeId=$id") },
+                                onNavigateToDetail = { id -> navController.navigate("recipe_detail/$id") }
+                            )
+                        }
+                        composable(
+                            route = "recipe_detail/{recipeId}",
+                            arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val recipeId = backStackEntry.arguments?.getString("recipeId") ?: ""
+                            RecipeDetailScreen(
+                                viewModel = recipeViewModel,
+                                recipeId = recipeId,
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateToEdit = { id -> 
+                                    navController.navigate("recipe_form?recipeId=$id") {
+                                        popUpTo("recipes")
+                                    }
+                                }
                             )
                         }
                         composable("history") {
