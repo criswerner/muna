@@ -21,6 +21,11 @@ enum class MeasureUnit(val symbol: String, val type: UnitType, val ratioToBase: 
         fun fromSymbol(symbol: String): MeasureUnit {
             return entries.find { it.symbol.equals(symbol, ignoreCase = true) } ?: UNIT
         }
+
+        fun getCompatibleUnits(symbol: String): List<String> {
+            val type = fromSymbol(symbol).type
+            return entries.filter { it.type == type }.map { it.symbol }
+        }
         
         fun getAllSymbols(): List<String> = entries.map { it.symbol }
     }

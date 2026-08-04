@@ -179,8 +179,7 @@ fun IngredientPicker(
     var unitExpanded by remember { mutableStateOf(false) }
 
     val compatibleUnits = remember(selectedIngredient) {
-        val ingredientUnit = MeasureUnit.fromSymbol(selectedIngredient?.unit ?: String.empty())
-        MeasureUnit.entries.filter { it.type == ingredientUnit.type }.map { it.symbol }
+        MeasureUnit.getCompatibleUnits(selectedIngredient?.unit ?: String.empty())
     }
 
     LaunchedEffect(selectedIngredient) {
