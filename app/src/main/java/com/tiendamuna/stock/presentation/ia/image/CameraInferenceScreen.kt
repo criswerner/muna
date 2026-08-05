@@ -24,12 +24,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import android.content.Context
 import com.tiendamuna.stock.utils.ImageClassifierHelper
 
 @Composable
-fun CameraInferenceScreen(classifierHelper: ImageClassifierHelper) {
+fun CameraInferenceScreen(context: Context) {
     var resultText by remember { mutableStateOf("Analizando...") }
     var inferenceTime by remember { mutableStateOf(0L) }
+
+    val classifierHelper = remember {
+        ImageClassifierHelper(
+            context = context,
+            listener = { result, time ->
+                resultText = result
+                inferenceTime = time
+            }
+        )
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Vista previa de la cámara (CameraX AndroidView)

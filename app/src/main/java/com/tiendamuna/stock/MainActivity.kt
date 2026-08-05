@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
@@ -87,7 +88,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
                         // Only show bottom bar on main screens
-                        val mainScreens = listOf("stock", "recipes", "history")
+                        val mainScreens = listOf("stock", "recipes", "history", "ia_inference")
                         if (currentRoute in mainScreens) {
                             val navItems = listOf(
                                 NavigationItem(
@@ -104,6 +105,11 @@ class MainActivity : ComponentActivity() {
                                     route = "history",
                                     icon = Icons.Default.History,
                                     label = "Historial"
+                                ),
+                                NavigationItem(
+                                    route = "ia_inference",
+                                    icon = Icons.Default.Psychology,
+                                    label = "IA"
                                 )
                             )
                             StockBottomNavigation(

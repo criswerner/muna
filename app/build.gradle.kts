@@ -19,6 +19,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
+        }
     }
 
     signingConfigs {
@@ -52,6 +55,12 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
 
     lint {
@@ -90,6 +99,7 @@ dependencies {
 
     // MediaPipe Tasks Vision (IA On-Device)
     implementation(libs.tasks.vision)
+    implementation(libs.tasks.core)
 
 
     testImplementation(libs.junit)

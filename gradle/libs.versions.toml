@@ -19,7 +19,7 @@ retrofit = "3.0.0"
 okhttp = "5.4.0"
 mockk = "1.14.11"
 coroutinesTest = "1.11.0"
-tasksVision = "0.10.14"
+tasksVision = "1.0.0"
 
 [libraries]
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraxVersion" }
@@ -55,6 +55,7 @@ okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-intercepto
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 tasks-vision = { module = "com.google.mediapipe:tasks-vision", version.ref = "tasksVision" }
+tasks-core = { module = "com.google.mediapipe:tasks-core", version.ref = "tasksVision" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
