@@ -81,6 +81,17 @@ dependencies {
     lintChecks(project(":lintrules"))
     implementation(project(":platform"))
 
+
+    // CameraX
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+
+    // MediaPipe Tasks Vision (IA On-Device)
+    implementation(libs.tasks.vision)
+
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -96,7 +107,7 @@ tasks.register("buildReleaseApp") {
     group = "production"
     description = "Genera el APK de producción (Release)"
     dependsOn("assembleRelease")
-    
+
     doLast {
         println("Build de Release finalizado con éxito.")
     }
