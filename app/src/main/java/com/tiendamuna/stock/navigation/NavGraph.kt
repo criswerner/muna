@@ -2,7 +2,6 @@ package com.tiendamuna.stock.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -10,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.tiendamuna.stock.presentation.history.HistoryScreen
 import com.tiendamuna.stock.presentation.history.HistoryViewModel
+import com.tiendamuna.stock.presentation.ia.image.CameraCaptureAndInferenceScreen
 import com.tiendamuna.stock.presentation.ia.image.CameraInferenceScreen
 import com.tiendamuna.stock.presentation.recipe.RecipeDetailScreen
 import com.tiendamuna.stock.presentation.recipe.RecipeFormScreen
@@ -62,7 +62,7 @@ fun StockNavGraph(
             HistoryScreen(viewModel = historyViewModel)
         }
         composable("ia_inference") {
-            CameraInferenceScreen(context = LocalContext.current)
+            CameraCaptureAndInferenceScreen()
         }
         composable(
             route = "recipe_form?recipeId={recipeId}",
