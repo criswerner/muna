@@ -2,7 +2,6 @@ package com.tiendamuna.stock.utils
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.os.SystemClock
 import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
@@ -20,12 +19,11 @@ class CaptureImageClassifierHelper(
 
     private fun setupClassifier() {
         val baseOptions = BaseOptions.builder()
-            .setModelAssetPath("efficientnet_lite0.tflite")
+            .setModelAssetPath(MODEL_LITE_PATH)
             .build()
 
         val options = ImageClassifier.ImageClassifierOptions.builder()
             .setBaseOptions(baseOptions)
-            // CAMBIAMOS ESTO: De LIVE_STREAM a IMAGE
             .setRunningMode(RunningMode.IMAGE)
             .setMaxResults(1)
             .build()
@@ -50,5 +48,9 @@ class CaptureImageClassifierHelper(
         } else {
             "No se pudo clasificar"
         }
+    }
+
+    companion object {
+        private const val MODEL_LITE_PATH = "efficientnet_lite0.tflite"
     }
 }
