@@ -13,6 +13,7 @@ import com.tiendamuna.stock.presentation.recipe.RecipeDetailScreen
 import com.tiendamuna.stock.presentation.recipe.RecipeFormScreen
 import com.tiendamuna.stock.presentation.recipe.RecipeScreen
 import com.tiendamuna.stock.presentation.recipe.RecipeViewModel
+import com.tiendamuna.stock.presentation.stock.AddIngredientScreen
 import com.tiendamuna.stock.presentation.stock.StockScreen
 import com.tiendamuna.stock.presentation.stock.StockViewModel
 
@@ -30,7 +31,16 @@ fun StockNavGraph(
         modifier = modifier
     ) {
         composable("stock") {
-            StockScreen(viewModel = stockViewModel)
+            StockScreen(
+                viewModel = stockViewModel,
+                onNavigateToAddIngredient = { navController.navigate("add_ingredient") }
+            )
+        }
+        composable("add_ingredient") {
+            AddIngredientScreen(
+                viewModel = stockViewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
         composable("recipes") {
             RecipeScreen(

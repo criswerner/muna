@@ -1,17 +1,16 @@
 package com.tiendamuna.stock.presentation.stock
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -57,135 +56,72 @@ fun CategorySelector(
 
 @Composable
 fun StockScreen(
-    viewModel: StockViewModel
+    viewModel: StockViewModel,
+    onNavigateToAddIngredient: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
-    var name by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf("") }
-    var unit by remember { mutableStateOf(MeasureUnit.GRAM.symbol) }
-    var category by remember { mutableStateOf(Category.OTHERS) }
-    var totalPrice by remember { mutableStateOf("") }
-
     var ingredientToEdit by remember { mutableStateOf<IngredientUiModel?>(null) }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(text = stringResource(R.string.title_add_stock), style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(16.dp))
 
-        state.error?.let { error ->
-            Text(text = error, color = Color.Red, style = MaterialTheme.typography.bodySmall)
-            Button(onClick = { viewModel.onEvent(StockEvent.ClearError) }) {
-                Text("OK") // Simple enough or could add R.string.ok
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(onClick = onNavigateToAddIngredient) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.title_add_stock))
             }
-            Spacer(modifier = Modifier.height(8.dp))
         }
-
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text(stringResource(R.string.ingredient_name_hint)) },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = quantity,
-                onValueChange = { quantity = it },
-                label = { Text(stringResource(R.string.quantity_field)) },
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            UnitSelector(
-                selectedUnit = unit,
-                onUnitSelected = { unit = it },
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        CategorySelector(
-            selectedCategory = category,
-            onCategorySelected = { category = it },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = totalPrice,
-            onValueChange = { totalPrice = it },
-            label = { Text("Precio Total Pagado ($)") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                viewModel.onEvent(
-                    StockEvent.AddIngredient(
-                        name, 
-                        quantity.toDoubleOrNull() ?: 0.0, 
-                        unit, 
-                        category,
-                        totalPrice.toDoubleOrNull() ?: 0.0
-                    )
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.title_inventory),
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.weight(1f)
                 )
-                name = ""
-                quantity = ""
-                unit = MeasureUnit.GRAM.symbol
-                category = Category.OTHERS
-                totalPrice = ""
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.ingredient_add_stock_button))
-        }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.title_inventory),
-                style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f)
-            )
             OutlinedTextField(
                 value = state.searchQuery,
                 onValueChange = { viewModel.onEvent(StockEvent.SearchQueryChanged(it)) },
                 placeholder = { Text(stringResource(R.string.ingredient_search_hint)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                modifier = Modifier.weight(1.5f),
+                modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = MaterialTheme.shapes.medium
             )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
+            
+            Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn {
-            items(state.ingredients) { ingredient ->
-                StockItem(
-                    ingredient = ingredient,
-                    onDelete = {
-                        viewModel.onEvent(
-                            StockEvent.DeleteIngredient(
-                                Ingredient(
-                                    id = ingredient.id,
-                                    name = ingredient.name,
-                                    quantity = ingredient.rawQuantity,
-                                    unit = ingredient.unit
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(state.ingredients) { ingredient ->
+                    StockItem(
+                        ingredient = ingredient,
+                        onDelete = {
+                            viewModel.onEvent(
+                                StockEvent.DeleteIngredient(
+                                    Ingredient(
+                                        id = ingredient.id,
+                                        name = ingredient.name,
+                                        quantity = ingredient.rawQuantity,
+                                        unit = ingredient.unit
+                                    )
                                 )
                             )
-                        )
-                    },
-                    onEdit = { ingredientToEdit = ingredient }
-                )
+                        },
+                        onEdit = { ingredientToEdit = ingredient }
+                    )
+                }
             }
         }
     }
@@ -301,7 +237,6 @@ fun StockItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
     ) {
         Row(
             modifier = Modifier
