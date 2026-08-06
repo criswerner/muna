@@ -1,3 +1,4 @@
 /build
 stdout.*
 lint-baseline.xml
+.idea

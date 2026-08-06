@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -64,7 +65,7 @@ fun StockScreen(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = onNavigateToAddIngredient) {
+            FloatingActionButton(onClick = onNavigateToAddIngredient, modifier = Modifier.testTag("add_ingredient_fab")) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.title_add_stock))
             }
         }
