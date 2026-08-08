@@ -1,6 +1,7 @@
 package com.tiendamuna.stock.di
 
 import android.content.Context
+import com.google.firebase.firestore.FirebaseFirestore
 import com.tiendamuna.stock.data.HistoryRepositoryImpl
 import com.tiendamuna.stock.data.RecipeRepositoryImpl
 import com.tiendamuna.stock.data.StockRepositoryImpl
@@ -17,11 +18,14 @@ import com.tiendamuna.stock.domain.usecase.*
  */
 class AppContainer(context: Context) {
 
+    // Firebase
+    private val firestore = FirebaseFirestore.getInstance()
+
     // Data Sources
     private val stockDataSource = SharedPrefsStockDataSource(context)
     private val recipeDataSource = SharedPrefsRecipeDataSource(context)
     private val historyDataSource = SharedPrefsHistoryDataSource(context)
-    private val remoteStockDataSource = RemoteStockDataSource(createApiService(StockApiService::class.java))
+    private val remoteStockDataSource = RemoteStockDataSource(firestore)
 
     // Repositories
     val stockRepository = StockRepositoryImpl(stockDataSource, remoteStockDataSource)

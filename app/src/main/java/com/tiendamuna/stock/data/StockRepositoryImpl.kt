@@ -45,27 +45,33 @@ class StockRepositoryImpl(
 
     override suspend fun addIngredient(ingredient: Ingredient) {
         val updated = _stock.value + ingredient
-        saveAndUpdate(updated)
+        saveAndSync(updated) {
+            remoteDataSource.addOrUpdateIngredient(ingredient)
+        }
     }
 
     override suspend fun updateIngredient(ingredient: Ingredient) {
         val updated = _stock.value.map { if (it.id == ingredient.id) ingredient else it }
-        saveAndUpdate(updated)
+        saveAndSync(updated) {
+            remoteDataSource.addOrUpdateIngredient(ingredient)
+        }
     }
 
     override suspend fun deleteIngredient(ingredient: Ingredient) {
         val updated = _stock.value.filter { it.id != ingredient.id }
-        saveAndUpdate(updated)
+        saveAndSync(updated) {
+            remoteDataSource.deleteIngredient(ingredient.id)
+        }
     }
 
-    private suspend fun saveAndUpdate(newList: List<Ingredient>) {
+    private suspend fun saveAndSync(newList: List<Ingredient>, remoteAction: suspend () -> Result<Unit>) {
         // Actualizar local y memoria inmediatamente (Optimistic UI)
         localDataSource.saveIngredients(newList)
         _stock.value = newList
         
-        // Intentar sincronizar con remoto en segundo plano
+        // Ejecutar acción remota en segundo plano
         scope.launch {
-            remoteDataSource.syncStock(newList)
+            remoteAction()
         }
     }
 }
