@@ -4,11 +4,12 @@ import com.tiendamuna.stock.data.datasource.StockDataSource
 import com.tiendamuna.stock.data.datasource.remote.RemoteStockDataSource
 import com.tiendamuna.stock.domain.model.Ingredient
 import com.tiendamuna.stock.domain.repository.StockRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 class StockRepositoryImpl(
@@ -16,32 +17,41 @@ class StockRepositoryImpl(
     private val remoteDataSource: RemoteStockDataSource
 ) : StockRepository {
     
-    // The Repository is now the Single Source of Truth in memory
     private val _stock = MutableStateFlow<List<Ingredient>>(emptyList())
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private var isLoaded = false
 
-    init {
-        // Initial load
-        scope.launch {
+    override fun getStock(): Flow<List<Ingredient>> = _stock.asStateFlow()
+        .onStart {
+            if (!isLoaded) {
+                refreshStock()
+            }
+        }
+
+    private fun refreshStock() {
+        // Usamos GlobalScope solo para asegurar que la sincronización termine si el ViewModel desaparece,
+        // pero la carga inicial es disparada por la UI
+        @OptIn(DelicateCoroutinesApi::class)
+        GlobalScope.launch {
             loadInitialData()
         }
     }
 
     private suspend fun loadInitialData() {
-        // 1. Intentar obtener de remoto
+        // 1. Cargar local inmediatamente para mostrar algo rápido
+        _stock.value = localDataSource.getStock()
+        
+        // 2. Intentar obtener de remoto para actualizar
         remoteDataSource.getStock()
             .onSuccess { remoteIngredients ->
-                // 2. Si tiene éxito, actualizar local y memoria
                 localDataSource.saveIngredients(remoteIngredients)
                 _stock.value = remoteIngredients
+                isLoaded = true
             }
             .onFailure {
-                // 3. Si falla, usar local como fallback
-                _stock.value = localDataSource.getStock()
+                // Si falla el remoto, ya tenemos lo local en el StateFlow
+                isLoaded = true 
             }
     }
-
-    override fun getStock(): Flow<List<Ingredient>> = _stock.asStateFlow()
 
     override suspend fun addIngredient(ingredient: Ingredient) {
         val updated = _stock.value + ingredient
@@ -64,13 +74,15 @@ class StockRepositoryImpl(
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private suspend fun saveAndSync(newList: List<Ingredient>, remoteAction: suspend () -> Result<Unit>) {
-        // Actualizar local y memoria inmediatamente (Optimistic UI)
+        // Optimistic UI: Actualizar local y memoria inmediatamente
         localDataSource.saveIngredients(newList)
         _stock.value = newList
         
-        // Ejecutar acción remota en segundo plano
-        scope.launch {
+        // La acción remota se lanza en GlobalScope para asegurar que persista 
+        // aunque el usuario cierre la pantalla antes de que termine el network call
+        GlobalScope.launch {
             remoteAction()
         }
     }
