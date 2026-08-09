@@ -53,10 +53,10 @@ class UpdateIngredientUseCaseTest {
     }
 
     @Test
-    fun `when data is valid should call repository update`() = runTest {
+    fun `when data is valid should call updateIngredient`() = runTest {
         // Given
         val ingredient = Ingredient(id = "1", name = "Harina", quantity = 10.0, unit = "g")
-        coEvery { repository.getStock() } returns flowOf(listOf(ingredient))
+        coEvery { repository.getStock() } returns flowOf(emptyList())
 
         // When
         useCase(ingredient)

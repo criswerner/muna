@@ -1,6 +1,7 @@
 package com.tiendamuna.stock.data
 
 import com.tiendamuna.stock.data.datasource.StockDataSource
+import com.tiendamuna.stock.data.datasource.remote.RemoteRecipeDataSource
 import com.tiendamuna.stock.data.datasource.remote.RemoteStockDataSource
 import com.tiendamuna.stock.domain.model.Ingredient
 import com.tiendamuna.stock.domain.repository.StockRepository
@@ -17,6 +18,7 @@ import kotlinx.coroutines.withContext
 class StockRepositoryImpl(
     private val localDataSource: StockDataSource,
     private val remoteDataSource: RemoteStockDataSource,
+    private val remoteRecipeDataSource: RemoteRecipeDataSource,
     private val externalScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : StockRepository {
@@ -38,11 +40,9 @@ class StockRepositoryImpl(
     }
 
     private suspend fun loadInitialData() {
-        // Cargar local inmediatamente
         val localData = localDataSource.getStock()
         _stock.value = localData
         
-        // Intentar obtener de remoto para actualizar
         remoteDataSource.getStock()
             .onSuccess { remoteIngredients ->
                 localDataSource.saveIngredients(remoteIngredients)
@@ -62,9 +62,37 @@ class StockRepositoryImpl(
     }
 
     override suspend fun updateIngredient(ingredient: Ingredient) {
+        val oldIngredient = _stock.value.find { it.id == ingredient.id }
         val updated = _stock.value.map { if (it.id == ingredient.id) ingredient else it }
+        
         saveAndSync(updated) {
+            // 1. Actualizar el ingrediente en sí
             remoteDataSource.addOrUpdateIngredient(ingredient)
+            
+            // 2. Si el nombre cambió, propagar a las recetas (Integridad de Datos en la Capa de Datos)
+            if (oldIngredient != null && oldIngredient.name != ingredient.name) {
+                updateRecipesWithNewIngredientName(ingredient)
+            }
+            Result.success(Unit)
+        }
+    }
+
+    private suspend fun updateRecipesWithNewIngredientName(ingredient: Ingredient) {
+        remoteRecipeDataSource.getRecipes().onSuccess { recipes ->
+            val recipesToUpdate = recipes.filter { recipe ->
+                recipe.ingredients.any { it.ingredientId == ingredient.id }
+            }
+            
+            recipesToUpdate.forEach { recipe ->
+                val updatedIngredients = recipe.ingredients.map { recipeIng ->
+                    if (recipeIng.ingredientId == ingredient.id) {
+                        recipeIng.copy(name = ingredient.name)
+                    } else {
+                        recipeIng
+                    }
+                }
+                remoteRecipeDataSource.addOrUpdateRecipe(recipe.copy(ingredients = updatedIngredients))
+            }
         }
     }
 
@@ -76,13 +104,11 @@ class StockRepositoryImpl(
     }
 
     private suspend fun saveAndSync(newList: List<Ingredient>, remoteAction: suspend () -> Result<Unit>) {
-        // Optimistic UI
         withContext(ioDispatcher) {
             localDataSource.saveIngredients(newList)
         }
         _stock.value = newList
         
-        // Sincronización remota usando el scope externo para asegurar que persista
         externalScope.launch(ioDispatcher) {
             remoteAction()
         }

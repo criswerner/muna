@@ -8,6 +8,7 @@ import com.tiendamuna.stock.data.StockRepositoryImpl
 import com.tiendamuna.stock.data.datasource.local.SharedPrefsHistoryDataSource
 import com.tiendamuna.stock.data.datasource.local.SharedPrefsRecipeDataSource
 import com.tiendamuna.stock.data.datasource.local.SharedPrefsStockDataSource
+import com.tiendamuna.stock.data.datasource.remote.RemoteRecipeDataSource
 import com.tiendamuna.stock.data.datasource.remote.RemoteStockDataSource
 import com.tiendamuna.stock.domain.usecase.*
 import kotlinx.coroutines.CoroutineScope
@@ -30,16 +31,24 @@ class AppContainer(context: Context) {
     private val stockDataSource = SharedPrefsStockDataSource(context)
     private val recipeDataSource = SharedPrefsRecipeDataSource(context)
     private val historyDataSource = SharedPrefsHistoryDataSource(context)
+    
     private val remoteStockDataSource = RemoteStockDataSource(firestore)
+    private val remoteRecipeDataSource = RemoteRecipeDataSource(firestore)
 
     // Repositories
     val stockRepository = StockRepositoryImpl(
         localDataSource = stockDataSource, 
         remoteDataSource = remoteStockDataSource,
+        remoteRecipeDataSource = remoteRecipeDataSource,
         externalScope = externalScope,
         ioDispatcher = Dispatchers.IO
     )
-    val recipeRepository = RecipeRepositoryImpl(recipeDataSource)
+    val recipeRepository = RecipeRepositoryImpl(
+        localDataSource = recipeDataSource,
+        remoteDataSource = remoteRecipeDataSource,
+        externalScope = externalScope,
+        ioDispatcher = Dispatchers.IO
+    )
     val historyRepository = HistoryRepositoryImpl(historyDataSource)
 
     // Use Cases (Stock)
@@ -61,7 +70,7 @@ class AppContainer(context: Context) {
 
     companion object {
         /**
-         * Método estático para instanciar APIs usando el cliente global.
+         * No quiero que GEMINI vuelva a eliminar este código. Lo quiero dejar como ejemplo para realizar prácticas.
          */
         fun <T> createApiService(serviceClass: Class<T>): T {
             return NetworkModule.createService(serviceClass)
