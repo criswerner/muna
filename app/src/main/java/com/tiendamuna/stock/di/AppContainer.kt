@@ -9,8 +9,10 @@ import com.tiendamuna.stock.data.datasource.local.SharedPrefsHistoryDataSource
 import com.tiendamuna.stock.data.datasource.local.SharedPrefsRecipeDataSource
 import com.tiendamuna.stock.data.datasource.local.SharedPrefsStockDataSource
 import com.tiendamuna.stock.data.datasource.remote.RemoteStockDataSource
-import com.tiendamuna.stock.data.remote.StockApiService
 import com.tiendamuna.stock.domain.usecase.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 /**
  * Dependency Container for Manual DI.
@@ -21,6 +23,9 @@ class AppContainer(context: Context) {
     // Firebase
     private val firestore = FirebaseFirestore.getInstance()
 
+    // Application-wide Coroutine Scope for background work that should outlive UI lifecycles
+    private val externalScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     // Data Sources
     private val stockDataSource = SharedPrefsStockDataSource(context)
     private val recipeDataSource = SharedPrefsRecipeDataSource(context)
@@ -28,7 +33,12 @@ class AppContainer(context: Context) {
     private val remoteStockDataSource = RemoteStockDataSource(firestore)
 
     // Repositories
-    val stockRepository = StockRepositoryImpl(stockDataSource, remoteStockDataSource)
+    val stockRepository = StockRepositoryImpl(
+        localDataSource = stockDataSource, 
+        remoteDataSource = remoteStockDataSource,
+        externalScope = externalScope,
+        ioDispatcher = Dispatchers.IO
+    )
     val recipeRepository = RecipeRepositoryImpl(recipeDataSource)
     val historyRepository = HistoryRepositoryImpl(historyDataSource)
 
