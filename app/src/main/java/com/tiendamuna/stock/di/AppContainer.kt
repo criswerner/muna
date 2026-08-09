@@ -24,7 +24,7 @@ class AppContainer(context: Context) {
     // Firebase
     private val firestore = FirebaseFirestore.getInstance()
 
-    // Application-wide Coroutine Scope for background work that should outlive UI lifecycles
+    // Application-wide Coroutine Scope for background work
     private val externalScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     // Data Sources
@@ -36,19 +36,22 @@ class AppContainer(context: Context) {
     private val remoteRecipeDataSource = RemoteRecipeDataSource(firestore)
 
     // Repositories
-    val stockRepository = StockRepositoryImpl(
-        localDataSource = stockDataSource, 
-        remoteDataSource = remoteStockDataSource,
-        remoteRecipeDataSource = remoteRecipeDataSource,
-        externalScope = externalScope,
-        ioDispatcher = Dispatchers.IO
-    )
+    // Nota: Inicializamos recipeRepository primero ya que stockRepository ahora depende de él
     val recipeRepository = RecipeRepositoryImpl(
         localDataSource = recipeDataSource,
         remoteDataSource = remoteRecipeDataSource,
         externalScope = externalScope,
         ioDispatcher = Dispatchers.IO
     )
+
+    val stockRepository = StockRepositoryImpl(
+        localDataSource = stockDataSource, 
+        remoteDataSource = remoteStockDataSource,
+        recipeRepository = recipeRepository,
+        externalScope = externalScope,
+        ioDispatcher = Dispatchers.IO
+    )
+
     val historyRepository = HistoryRepositoryImpl(historyDataSource)
 
     // Use Cases (Stock)
