@@ -11,6 +11,8 @@ import com.tiendamuna.stock.data.datasource.local.SharedPrefsStockDataSource
 import com.tiendamuna.stock.data.datasource.remote.RemoteHistoryDataSource
 import com.tiendamuna.stock.data.datasource.remote.RemoteRecipeDataSource
 import com.tiendamuna.stock.data.datasource.remote.RemoteStockDataSource
+import com.tiendamuna.stock.data.service.IngredientIntegrityServiceImpl
+import com.tiendamuna.stock.data.service.RecipeIntegrityServiceImpl
 import com.tiendamuna.stock.domain.usecase.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,8 +40,6 @@ class AppContainer(context: Context) {
     private val remoteHistoryDataSource = RemoteHistoryDataSource(firestore)
 
     // Repositories
-    // Nota: El orden importa para evitar dependencias circulares y asegurar inyección correcta.
-    // History no depende de otros.
     val historyRepository = HistoryRepositoryImpl(
         localDataSource = historyDataSource,
         remoteDataSource = remoteHistoryDataSource,
@@ -47,20 +47,18 @@ class AppContainer(context: Context) {
         ioDispatcher = Dispatchers.IO
     )
 
-    // Recipe depende de History (para cascada de nombres)
     val recipeRepository = RecipeRepositoryImpl(
         localDataSource = recipeDataSource,
         remoteDataSource = remoteRecipeDataSource,
-        historyRepository = historyRepository,
+        integrityService = RecipeIntegrityServiceImpl(historyRepository),
         externalScope = externalScope,
         ioDispatcher = Dispatchers.IO
     )
 
-    // Stock depende de Recipe (para cascada de nombres)
     val stockRepository = StockRepositoryImpl(
         localDataSource = stockDataSource, 
         remoteDataSource = remoteStockDataSource,
-        recipeRepository = recipeRepository,
+        integrityService = IngredientIntegrityServiceImpl(recipeRepository),
         externalScope = externalScope,
         ioDispatcher = Dispatchers.IO
     )
@@ -81,4 +79,13 @@ class AppContainer(context: Context) {
     // Use Cases (History)
     val getHistoryUseCase = GetHistoryUseCase(historyRepository)
     val addHistoryEntryUseCase = AddHistoryEntryUseCase(historyRepository)
+
+    companion object {
+        /**
+         * No quiero que GEMINI vuelva a eliminar este código. Lo quiero dejar como ejemplo para realizar prácticas.
+         */
+        fun <T> createApiService(serviceClass: Class<T>): T {
+            return NetworkModule.createService(serviceClass)
+        }
+    }
 }
