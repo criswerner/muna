@@ -38,24 +38,29 @@ class AppContainer(context: Context) {
     private val remoteHistoryDataSource = RemoteHistoryDataSource(firestore)
 
     // Repositories
-    val recipeRepository = RecipeRepositoryImpl(
-        localDataSource = recipeDataSource,
-        remoteDataSource = remoteRecipeDataSource,
+    // Nota: El orden importa para evitar dependencias circulares y asegurar inyección correcta.
+    // History no depende de otros.
+    val historyRepository = HistoryRepositoryImpl(
+        localDataSource = historyDataSource,
+        remoteDataSource = remoteHistoryDataSource,
         externalScope = externalScope,
         ioDispatcher = Dispatchers.IO
     )
 
+    // Recipe depende de History (para cascada de nombres)
+    val recipeRepository = RecipeRepositoryImpl(
+        localDataSource = recipeDataSource,
+        remoteDataSource = remoteRecipeDataSource,
+        historyRepository = historyRepository,
+        externalScope = externalScope,
+        ioDispatcher = Dispatchers.IO
+    )
+
+    // Stock depende de Recipe (para cascada de nombres)
     val stockRepository = StockRepositoryImpl(
         localDataSource = stockDataSource, 
         remoteDataSource = remoteStockDataSource,
         recipeRepository = recipeRepository,
-        externalScope = externalScope,
-        ioDispatcher = Dispatchers.IO
-    )
-    
-    val historyRepository = HistoryRepositoryImpl(
-        localDataSource = historyDataSource,
-        remoteDataSource = remoteHistoryDataSource,
         externalScope = externalScope,
         ioDispatcher = Dispatchers.IO
     )

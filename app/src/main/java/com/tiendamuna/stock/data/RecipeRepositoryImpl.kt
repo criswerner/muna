@@ -3,6 +3,7 @@ package com.tiendamuna.stock.data
 import com.tiendamuna.stock.data.datasource.RecipeDataSource
 import com.tiendamuna.stock.data.datasource.remote.RemoteRecipeDataSource
 import com.tiendamuna.stock.domain.model.Recipe
+import com.tiendamuna.stock.domain.repository.HistoryRepository
 import com.tiendamuna.stock.domain.repository.RecipeRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -10,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -17,6 +19,7 @@ import kotlinx.coroutines.withContext
 class RecipeRepositoryImpl(
     private val localDataSource: RecipeDataSource,
     private val remoteDataSource: RemoteRecipeDataSource,
+    private val historyRepository: HistoryRepository,
     private val externalScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : RecipeRepository {
@@ -62,9 +65,28 @@ class RecipeRepositoryImpl(
     }
 
     override suspend fun updateRecipe(recipe: Recipe) {
+        val oldRecipe = _recipes.value.find { it.id == recipe.id }
         val updated = _recipes.value.map { if (it.id == recipe.id) recipe else it }
+        
+        // 1. Actualizar la receta (Local + Memoria + Firestore)
         saveAndSync(updated) {
             remoteDataSource.addOrUpdateRecipe(recipe)
+        }
+
+        // 2. Si el nombre de la receta cambió, propagar al historial (Consistencia técnica en Capa de Datos)
+        if (oldRecipe != null && oldRecipe.name != recipe.name) {
+            propagateRecipeNameChangeToHistory(recipe)
+        }
+    }
+
+    private suspend fun propagateRecipeNameChangeToHistory(recipe: Recipe) {
+        val allHistory = historyRepository.getHistory().first()
+        val entriesToUpdate = allHistory.filter { it.recipeId == recipe.id }
+        
+        entriesToUpdate.forEach { entry ->
+            if (entry.recipeName != recipe.name) {
+                historyRepository.addEntry(entry.copy(recipeName = recipe.name))
+            }
         }
     }
 
