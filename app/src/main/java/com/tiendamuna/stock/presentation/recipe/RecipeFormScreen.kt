@@ -26,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -91,42 +90,39 @@ fun RecipeFormScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (recipeId == null) "Nueva Receta" else "Editar Receta") }, // Could add resources for these
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cancel))
-                    }
-                },
-                actions = {
-                    TextButton(
-                        onClick = {
-                            viewModel.onEvent(
-                                RecipeEvent.SaveRecipe(
-                                    id = recipeId,
-                                    name = name,
-                                    ingredients = selectedIngredients,
-                                    yieldQuantity = yieldQuantity.toDoubleOrNull() ?: 1.0,
-                                    yieldUnit = yieldUnit,
-                                    instructions = instructions
-                                )
-                            )
-                            onNavigateBack()
-                        },
-                        enabled = name.isNotBlank() && selectedIngredients.isNotEmpty() && yieldQuantity.toDoubleOrNull() != null
-                    ) {
-                        Text(stringResource(R.string.save).uppercase(), style = MaterialTheme.typography.labelLarge)
-                    }
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopAppBar(
+            title = { Text(if (recipeId == null) "Nueva Receta" else "Editar Receta") },
+            navigationIcon = {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cancel))
                 }
-            )
-        }
-    ) { padding ->
+            },
+            actions = {
+                TextButton(
+                    onClick = {
+                        viewModel.onEvent(
+                            RecipeEvent.SaveRecipe(
+                                id = recipeId,
+                                name = name,
+                                ingredients = selectedIngredients,
+                                yieldQuantity = yieldQuantity.toDoubleOrNull() ?: 1.0,
+                                yieldUnit = yieldUnit,
+                                instructions = instructions
+                            )
+                        )
+                        onNavigateBack()
+                    },
+                    enabled = name.isNotBlank() && selectedIngredients.isNotEmpty() && yieldQuantity.toDoubleOrNull() != null
+                ) {
+                    Text(stringResource(R.string.save).uppercase(), style = MaterialTheme.typography.labelLarge)
+                }
+            }
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
                 .padding(16.dp)
         ) {
             OutlinedTextField(
@@ -190,7 +186,7 @@ fun RecipeFormScreen(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Añadir") // Could add resource
+                    Text("Añadir")
                 }
             }
             
@@ -199,7 +195,7 @@ fun RecipeFormScreen(
             if (selectedIngredients.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "No hay ingredientes añadidos", // Could add resource
+                        text = "No hay ingredientes añadidos",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.outline
                     )

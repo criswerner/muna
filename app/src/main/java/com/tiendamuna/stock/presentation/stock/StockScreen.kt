@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -63,22 +64,15 @@ fun StockScreen(
     val state by viewModel.state.collectAsState()
     var ingredientToEdit by remember { mutableStateOf<IngredientUiModel?>(null) }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = onNavigateToAddIngredient, modifier = Modifier.testTag("add_ingredient_fab")) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.title_add_stock))
-            }
-        }
-    ) { innerPadding ->
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .padding(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(R.string.title_inventory),
@@ -124,6 +118,16 @@ fun StockScreen(
                     )
                 }
             }
+        }
+
+        FloatingActionButton(
+            onClick = onNavigateToAddIngredient,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .testTag("add_ingredient_fab")
+        ) {
+            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.title_add_stock))
         }
     }
 
@@ -244,7 +248,7 @@ fun StockItem(
                 .padding(16.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = ingredient.name, style = MaterialTheme.typography.bodyLarge)
