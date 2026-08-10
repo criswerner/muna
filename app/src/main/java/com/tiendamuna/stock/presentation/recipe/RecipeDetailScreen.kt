@@ -20,7 +20,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -49,23 +48,21 @@ fun RecipeDetailScreen(
         state.recipes.find { it.id == recipeId }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(recipe?.name ?: "Detalle de Receta") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cancel))
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { onNavigateToEdit(recipeId) }) {
-                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
-                    }
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopAppBar(
+            title = { Text(recipe?.name ?: "Detalle de Receta") },
+            navigationIcon = {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cancel))
                 }
-            )
-        }
-    ) { padding ->
+            },
+            actions = {
+                IconButton(onClick = { onNavigateToEdit(recipeId) }) {
+                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
+                }
+            }
+        )
+
         if (recipe == null) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text("Receta no encontrada")
@@ -74,7 +71,6 @@ fun RecipeDetailScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
                     .padding(16.dp)
             ) {
                 item {

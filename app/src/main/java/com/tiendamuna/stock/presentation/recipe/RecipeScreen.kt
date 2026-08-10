@@ -41,17 +41,10 @@ fun RecipeScreen(
         viewModel.loadAvailableIngredients()
     }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = onNavigateToCreate) {
-                Icon(Icons.Default.Add, contentDescription = "Nueva Receta") // Could use resource
-            }
-        }
-    ) { padding ->
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
                 .padding(16.dp)
         ) {
             Text(text = stringResource(R.string.title_recipes), style = MaterialTheme.typography.headlineMedium)
@@ -65,7 +58,10 @@ fun RecipeScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            LazyColumn {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 items(state.recipes) { recipe ->
                     RecipeItem(
                         recipe = recipe,
@@ -84,6 +80,15 @@ fun RecipeScreen(
                     )
                 }
             }
+        }
+
+        FloatingActionButton(
+            onClick = onNavigateToCreate,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Nueva Receta")
         }
     }
 
@@ -292,7 +297,6 @@ fun RecipeItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
             .clickable { onClick() }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
