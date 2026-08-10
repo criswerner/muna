@@ -11,3 +11,6 @@ local.properties
 gradlew
 gradlew.bat
 .idea
+
+# Firebase
+app/google-services.json
