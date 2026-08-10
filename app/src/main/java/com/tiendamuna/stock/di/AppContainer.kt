@@ -8,6 +8,7 @@ import com.tiendamuna.stock.data.StockRepositoryImpl
 import com.tiendamuna.stock.data.datasource.local.SharedPrefsHistoryDataSource
 import com.tiendamuna.stock.data.datasource.local.SharedPrefsRecipeDataSource
 import com.tiendamuna.stock.data.datasource.local.SharedPrefsStockDataSource
+import com.tiendamuna.stock.data.datasource.remote.RemoteHistoryDataSource
 import com.tiendamuna.stock.data.datasource.remote.RemoteRecipeDataSource
 import com.tiendamuna.stock.data.datasource.remote.RemoteStockDataSource
 import com.tiendamuna.stock.domain.usecase.*
@@ -34,9 +35,9 @@ class AppContainer(context: Context) {
     
     private val remoteStockDataSource = RemoteStockDataSource(firestore)
     private val remoteRecipeDataSource = RemoteRecipeDataSource(firestore)
+    private val remoteHistoryDataSource = RemoteHistoryDataSource(firestore)
 
     // Repositories
-    // Nota: Inicializamos recipeRepository primero ya que stockRepository ahora depende de él
     val recipeRepository = RecipeRepositoryImpl(
         localDataSource = recipeDataSource,
         remoteDataSource = remoteRecipeDataSource,
@@ -51,8 +52,13 @@ class AppContainer(context: Context) {
         externalScope = externalScope,
         ioDispatcher = Dispatchers.IO
     )
-
-    val historyRepository = HistoryRepositoryImpl(historyDataSource)
+    
+    val historyRepository = HistoryRepositoryImpl(
+        localDataSource = historyDataSource,
+        remoteDataSource = remoteHistoryDataSource,
+        externalScope = externalScope,
+        ioDispatcher = Dispatchers.IO
+    )
 
     // Use Cases (Stock)
     val getStockUseCase = GetStockUseCase(stockRepository)
@@ -70,13 +76,4 @@ class AppContainer(context: Context) {
     // Use Cases (History)
     val getHistoryUseCase = GetHistoryUseCase(historyRepository)
     val addHistoryEntryUseCase = AddHistoryEntryUseCase(historyRepository)
-
-    companion object {
-        /**
-         * No quiero que GEMINI vuelva a eliminar este código. Lo quiero dejar como ejemplo para realizar prácticas.
-         */
-        fun <T> createApiService(serviceClass: Class<T>): T {
-            return NetworkModule.createService(serviceClass)
-        }
-    }
 }
