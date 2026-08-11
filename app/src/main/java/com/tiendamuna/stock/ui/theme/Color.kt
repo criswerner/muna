@@ -2,16 +2,20 @@ package com.tiendamuna.stock.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Giraffe Logo Palette
+// --- Organic Dark Palette (Inspired by the new UI) ---
+val AppBackground = Color(0xFF020617) // Very deep navy
+val AppSurface = Color(0xFF0F172A)    // Slate blue dark (Card background)
+val AppSurfaceVariant = Color(0xFF1E293B) // Slightly lighter for boxes inside cards
+
+val AppPrimary = Color(0xFFF59E0B)    // Amber (Logo/Buttons)
+val AppSecondary = Color(0xFF94A3B8)  // Muted Slate (Labels/Icons)
+val AppTertiary = Color(0xFF10B981)   // Emerald (Status/Success)
+
+val AppOnBackground = Color(0xFFF8FAFC) // Off-white
+val AppOnSurface = Color(0xFFF8FAFC)
+val AppError = Color(0xFFEF4444)      // Soft red
+
+// Legacy Giraffe Logo Palette (Keeping for reference if needed)
 val GiraffePrimary = Color(0xFF8B5E3C)
 val GiraffeSecondary = Color(0xFFCC9E6A)
-val GiraffeTertiary = Color(0xFF4FC3F7)
 val GiraffeBackground = Color(0xFFFDF5E6)
-val GiraffeSurface = Color(0xFFFFFFFF)
-val GiraffeOnBackground = Color(0xFF4E342E)
-
-// Dark Mode variants (simplified)
-val GiraffePrimaryDark = Color(0xFFD7CCC8)
-val GiraffeSecondaryDark = Color(0xFF8D6E63)
-val GiraffeBackgroundDark = Color(0xFF2D2926)
-val GiraffeSurfaceDark = Color(0xFF3E3A36)

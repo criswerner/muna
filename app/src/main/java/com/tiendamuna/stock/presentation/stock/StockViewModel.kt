@@ -10,12 +10,14 @@ import com.tiendamuna.stock.domain.usecase.GetStockUseCase
 import com.tiendamuna.stock.domain.usecase.UpdateIngredientUseCase
 import com.tiendamuna.stock.presentation.stock.mapper.toUiModel
 import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
+import com.tiendamuna.stock.presentation.stock.model.StockStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class StockViewModel(
     private val getStockUseCase: GetStockUseCase,
@@ -35,15 +37,23 @@ class StockViewModel(
         _error,
         _isLoading
     ) { ingredients, query, error, isLoading ->
+        val filteredIngredients = if (query.isBlank()) {
+            ingredients
+        } else {
+            ingredients.filter { it.name.contains(query, ignoreCase = true) }
+        }
+
+        val totalValuation = ingredients.sumOf { it.valuation }
+        val lowStockCount = ingredients.count { it.status != StockStatus.NORMAL }
+
         StockState(
-            ingredients = if (query.isBlank()) {
-                ingredients
-            } else {
-                ingredients.filter { it.name.contains(query, ignoreCase = true) }
-            },
+            ingredients = filteredIngredients,
             searchQuery = query,
             isLoading = isLoading,
-            error = error
+            error = error,
+            totalValuationDisplay = "$${String.format(Locale.getDefault(), "%,.2f", totalValuation)}",
+            totalIngredientsCount = ingredients.size,
+            lowStockCount = lowStockCount
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), StockState())
 
@@ -72,7 +82,8 @@ class StockViewModel(
                             quantity = event.quantity,
                             unit = event.unit,
                             category = event.category,
-                            totalPrice = event.totalPrice
+                            totalPrice = event.totalPrice,
+                            minThreshold = event.minThreshold
                         )
                         _error.value = null
                     } catch (e: Exception) {
@@ -105,7 +116,10 @@ data class StockState(
     val ingredients: List<IngredientUiModel> = emptyList(),
     val searchQuery: String = "",
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val totalValuationDisplay: String = "$0.00",
+    val totalIngredientsCount: Int = 0,
+    val lowStockCount: Int = 0
 )
 
 sealed class StockEvent {
@@ -115,7 +129,8 @@ sealed class StockEvent {
         val quantity: Double, 
         val unit: String, 
         val category: Category,
-        val totalPrice: Double
+        val totalPrice: Double,
+        val minThreshold: Double? = null
     ) : StockEvent()
     data class UpdateIngredient(val ingredient: Ingredient) : StockEvent()
     data class DeleteIngredient(val ingredient: Ingredient) : StockEvent()

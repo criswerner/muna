@@ -24,7 +24,8 @@ class SharedPrefsStockDataSource(context: Context) : StockDataSource {
                     quantity = obj.getDouble("quantity"),
                     unit = obj.getString("unit"),
                     category = Category.fromName(obj.optString("category", Category.OTHERS.name)),
-                    pricePerUnit = obj.optDouble("pricePerUnit", 0.0)
+                    pricePerUnit = obj.optDouble("pricePerUnit", 0.0),
+                    minThreshold = if (obj.has("minThreshold")) obj.getDouble("minThreshold") else null
                 )
             )
         }
@@ -41,6 +42,7 @@ class SharedPrefsStockDataSource(context: Context) : StockDataSource {
             obj.put("unit", it.unit)
             obj.put("category", it.category.name)
             obj.put("pricePerUnit", it.pricePerUnit)
+            it.minThreshold?.let { threshold -> obj.put("minThreshold", threshold) }
             array.put(obj)
         }
         prefs.edit { putString("ingredients_json", array.toString()) }

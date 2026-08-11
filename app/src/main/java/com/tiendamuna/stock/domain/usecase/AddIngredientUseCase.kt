@@ -13,7 +13,8 @@ class AddIngredientUseCase(private val repository: StockRepository) {
         quantity: Double, 
         unit: String, 
         category: Category = Category.OTHERS,
-        totalPrice: Double = 0.0
+        totalPrice: Double = 0.0,
+        minThreshold: Double? = null
     ) {
         if (name.isBlank()) throw IllegalArgumentException("El nombre no puede estar vacío")
         if (quantity <= 0) throw IllegalArgumentException("La cantidad debe ser mayor a 0")
@@ -38,7 +39,8 @@ class AddIngredientUseCase(private val repository: StockRepository) {
                 
                 val updatedIngredient = existingIngredient.copy(
                     quantity = existingIngredient.quantity + convertedAddedQuantity,
-                    pricePerUnit = newWeightedUnitPrice
+                    pricePerUnit = newWeightedUnitPrice,
+                    minThreshold = minThreshold ?: existingIngredient.minThreshold
                 )
                 repository.updateIngredient(updatedIngredient)
             } else {
@@ -52,7 +54,8 @@ class AddIngredientUseCase(private val repository: StockRepository) {
                 quantity = quantity, 
                 unit = unit, 
                 category = category,
-                pricePerUnit = unitPrice
+                pricePerUnit = unitPrice,
+                minThreshold = minThreshold
             )
             repository.addIngredient(ingredient)
         }
