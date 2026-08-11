@@ -37,6 +37,7 @@ import com.tiendamuna.stock.presentation.recipe.model.RecipeUiModel
 import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
 import com.tiendamuna.stock.utils.empty
 import com.tiendamuna.stock.presentation.common.components.DropDownList
+import java.util.Locale
 
 @Composable
 fun RecipeScreen(
@@ -69,7 +70,7 @@ fun RecipeScreen(
             state.error?.let { error ->
                 Text(text = error, color = MaterialTheme.colorScheme.error)
                 Button(onClick = { viewModel.onEvent(RecipeEvent.ClearError) }) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -106,7 +107,7 @@ fun RecipeScreen(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Nueva Receta")
+            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.title_new_recipe))
         }
     }
 
@@ -137,14 +138,14 @@ fun PrepareRecipeDialog(
             modifier = Modifier.fillMaxWidth().padding(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = "Preparar ${recipe.name}", style = MaterialTheme.typography.titleLarge)
+                Text(text = stringResource(R.string.dialog_prepare_title, recipe.name), style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "¿Cuántos lotes deseas preparar?", 
+                    text = stringResource(R.string.dialog_prepare_question), 
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = "Total a producir: ${(batches.toDoubleOrNull() ?: 0.0) * recipe.yieldQuantity} ${recipe.yieldUnit}",
+                    text = stringResource(R.string.dialog_prepare_total, String.format(Locale.getDefault(), "%.2f", (batches.toDoubleOrNull() ?: 0.0) * recipe.yieldQuantity), recipe.yieldUnit),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.secondary
                 )
@@ -154,7 +155,7 @@ fun PrepareRecipeDialog(
                 OutlinedTextField(
                     value = batches,
                     onValueChange = { batches = it },
-                    label = { Text("Cantidad de lotes") },
+                    label = { Text(stringResource(R.string.label_batches_quantity)) },
                     modifier = Modifier.fillMaxWidth(),
                     isError = batches.isNotEmpty() && (batches.toDoubleOrNull() ?: 0.0) <= 0.0
                 )
@@ -168,9 +169,9 @@ fun PrepareRecipeDialog(
                         onClick = {
                             onConfirm(batches.toDoubleOrNull() ?: 1.0)
                         },
-                        enabled = batches.toDoubleOrNull() != null && batches.toDouble() > 0
+                        enabled = batches.toDoubleOrNull() != null && (batches.toDoubleOrNull() ?: 0.0) > 0
                     ) {
-                        Text("Confirmar")
+                        Text(stringResource(R.string.button_confirm))
                     }
                 }
             }
@@ -214,20 +215,22 @@ fun IngredientPicker(
         }
     }
 
+    val placeholderChoose = stringResource(R.string.placeholder_choose_from_stock)
+
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier.fillMaxWidth().padding(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = "Seleccionar Ingrediente", style = MaterialTheme.typography.titleMedium)
+                Text(text = stringResource(R.string.dialog_select_ingredient_title), style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 DropDownList(
                     label = stringResource(R.string.name_field),
                     selectedItem = selectedIngredient,
                     items = available,
-                    itemToString = { it?.let { "${it.name} (${it.quantityDisplay})" } ?: "Elegir del stock" },
+                    itemToString = { it?.let { "${it.name} (${it.quantityDisplay})" } ?: placeholderChoose },
                     onItemSelected = { 
                         selectedIngredient = it
                         selectedUnit = it?.unit ?: String.empty()
@@ -269,7 +272,7 @@ fun IngredientPicker(
                     
                     if (neededInStockUnit > availableQty) {
                         Text(
-                            text = "Aviso: Supera el stock actual ($availableQty ${selectedIngredient!!.unit})",
+                            text = stringResource(R.string.warning_exceeds_stock, String.format(Locale.getDefault(), "%.2f", availableQty), selectedIngredient!!.unit),
                             color = Color(0xFFFFA500),
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(top = 4.dp)
@@ -296,7 +299,7 @@ fun IngredientPicker(
                         },
                         enabled = selectedIngredient != null && (quantity.toDoubleOrNull() ?: 0.0) > 0.0
                     ) {
-                        Text("Añadir")
+                        Text(stringResource(R.string.button_add))
                     }
                 }
             }
@@ -357,7 +360,7 @@ fun RecipeItem(
                         color = Color.White
                     )
                     Text(
-                        text = "Rinde por lote: ${recipe.yieldDisplay}",
+                        text = stringResource(R.string.label_yield_batch, recipe.yieldDisplay),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -381,7 +384,7 @@ fun RecipeItem(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Listo",
+                            text = stringResource(R.string.status_ready),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.tertiary,
                             fontWeight = FontWeight.Medium
@@ -405,7 +408,7 @@ fun RecipeItem(
                 ) {
                     Column {
                         Text(
-                            text = "COSTO / LOTE",
+                            text = stringResource(R.string.label_cost_batch),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.secondary,
                             letterSpacing = 1.sp
@@ -419,7 +422,7 @@ fun RecipeItem(
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            text = "COSTO / UNID.",
+                            text = stringResource(R.string.label_cost_unit),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.secondary,
                             letterSpacing = 1.sp
@@ -438,7 +441,7 @@ fun RecipeItem(
 
             // 3. Ingredients Section
             Text(
-                text = "INGREDIENTES (${recipe.ingredients.size})",
+                text = stringResource(R.string.label_ingredients_count, recipe.ingredients.size),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.secondary,
                 letterSpacing = 1.sp,
@@ -476,7 +479,7 @@ fun RecipeItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Ver Instrucciones de Cocina",
+                    text = stringResource(R.string.text_view_instructions),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -490,7 +493,7 @@ fun RecipeItem(
 
             if (showInstructions) {
                 Text(
-                    text = if (recipe.instructions.isBlank()) "Sin instrucciones registradas" else recipe.instructions,
+                    text = if (recipe.instructions.isBlank()) stringResource(R.string.text_no_instructions) else recipe.instructions,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
@@ -509,10 +512,10 @@ fun RecipeItem(
             ) {
                 Row {
                     IconButton(onClick = onEdit) {
-                        Icon(Icons.Default.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit), tint = MaterialTheme.colorScheme.secondary)
                     }
                     IconButton(onClick = onDelete) {
-                        Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete), tint = MaterialTheme.colorScheme.secondary)
                     }
                 }
 
@@ -541,7 +544,7 @@ fun RecipeItem(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Preparar Lote",
+                                text = stringResource(R.string.button_prepare_batch),
                                 color = Color.Black,
                                 fontWeight = FontWeight.Bold
                             )

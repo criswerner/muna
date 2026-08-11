@@ -1,33 +1,106 @@
 <resources>
     <string name="app_name">Stock</string>
 
+    <!-- Stock / Inventory -->
     <string name="ingredient_name_hint">Nombre del ingrediente</string>
     <string name="ingredient_search_hint">Buscar…</string>
     <string name="ingredient_add_stock_button">Agregar al stock</string>
+    <string name="title_inventory">Inventario</string>
+    <string name="title_stock">Stock</string>
+    <string name="title_add_stock">Alta de Stock</string>
+    <string name="title_edit_ingredient">Editar Ingrediente</string>
 
+    <string name="label_total_ingredients">TOTAL INGREDIENTES</string>
+    <string name="subtitle_in_catalog">En catálogo</string>
+    <string name="label_total_valuation">VALUACIÓN TOTAL</string>
+    <string name="subtitle_capital_invested">Capital invertido</string>
+    <string name="label_alerts">ALERTAS</string>
+    <string name="subtitle_critical_stock">Stock crítico</string>
+
+    <string name="header_ingredient">INGREDIENTE</string>
+    <string name="header_stock">STOCK</string>
+    <string name="header_value">VALOR</string>
+
+    <string name="status_out_of_stock">Agotado</string>
+    <string name="status_low_stock">Bajo</string>
+    <string name="status_ok">Ok</string>
+    <string name="label_min_threshold">Mín: %1$s %2$s</string>
+    <string name="label_threshold_optional">Alerta Stock Mínimo (Opcional)</string>
+    <string name="label_total_price_paid">Precio Total Pagado ($)</string>
+    <string name="label_price_per_unit_field">Precio por unidad ($)</string>
+    <string name="label_available">DISPONIBLE</string>
+    <string name="label_price_per_unit">PRECIO / UNIT.</string>
+
+    <!-- Recipes -->
+    <string name="title_recipes">Recetas</string>
     <string name="recipe_name_hint">Nombre de la receta</string>
     <string name="recipe_instructions_hint">Instrucciones</string>
+    <string name="title_new_recipe">Nueva Receta</string>
+    <string name="title_edit_recipe">Editar Receta</string>
+    <string name="title_recipe_detail">Detalle de Receta</string>
 
-    <string name="error_empty_name">El nombre no puede estar vacío</string>
-    <string name="error_negative_quantity">La cantidad no puede ser negativa</string>
-    <string name="error_ingredient_already_exists">Ya existe un ingrediente con el nombre \"{name}\"</string>
-    <string name="error_recipe_already_exists">Ya existe una receta con el nombre \"{name}\"</string>
+    <string name="label_yield">Rendimiento</string>
+    <string name="label_yield_hint">Rendimiento (ej: 12, 1.5)</string>
+    <string name="label_ingredients">Ingredientes</string>
+    <string name="label_ingredients_count">INGREDIENTES (%1$d)</string>
+    <string name="label_preparation">Preparación</string>
+    <string name="label_instructions_field">Instrucciones de preparación</string>
+    <string name="label_cost">Costo: %1$s</string>
+    <string name="label_cost_per_unit">Costo: %1$s (%2$s/%3$s)</string>
+    <string name="label_cost_estimated">Costo estimado: %1$s</string>
+    <string name="label_cost_batch">COSTO / LOTE</string>
+    <string name="label_cost_unit">COSTO / UNID.</string>
+    <string name="label_yield_batch">Rinde por lote: %1$s</string>
 
-    <string name="title_add_stock">Alta de Stock</string>
-    <string name="title_edit_recipes">Editar Ingrediente</string>
-    <string name="title_inventory">Inventario</string>
-    <string name="title_recipes">Recetas</string>
-    <string name="title_stock">Stock</string>
+    <string name="button_prepare_batch">Preparar Lote</string>
+    <string name="button_add">Añadir</string>
+    <string name="button_confirm">Confirmar</string>
+    <string name="button_take_another">Tomar otra</string>
 
+    <string name="dialog_prepare_title">Preparar %1$s</string>
+    <string name="dialog_prepare_question">¿Cuántos lotes deseas preparar?</string>
+    <string name="dialog_prepare_total">Total a producir: %1$s %2$s</string>
+    <string name="label_batches_quantity">Cantidad de lotes</string>
+
+    <string name="dialog_select_ingredient_title">Seleccionar Ingrediente</string>
+    <string name="placeholder_choose_from_stock">Elegir del stock</string>
+    <string name="warning_exceeds_stock">Aviso: Supera el stock actual (%1$s %2$s)</string>
+    <string name="text_no_ingredients">No hay ingredientes añadidos</string>
+    <string name="text_view_instructions">Ver Instrucciones de Cocina</string>
+    <string name="text_no_instructions">Sin instrucciones registradas</string>
+    <string name="text_recipe_not_found">Receta no encontrada</string>
+    <string name="status_ready">Listo</string>
+
+    <!-- History -->
+    <string name="title_history">Historial de Preparaciones</string>
+    <string name="text_empty_history">Aún no has preparado ninguna receta</string>
+    <string name="label_history_preparation">PREPARACIÓN</string>
+    <string name="label_history_total_cost">COSTO TOTAL</string>
+    <string name="label_history_detail">Detalle</string>
+    <string name="history_preparation_detail">Preparado %1$s lotes (%2$s %3$s)</string>
+
+    <!-- Common / Actions -->
     <string name="name_field">Nombre</string>
     <string name="quantity_field">Cantidad</string>
     <string name="unit_field">Unidad</string>
     <string name="category_field">Categoría</string>
-
     <string name="cancel">Cancelar</string>
     <string name="edit">Editar</string>
     <string name="delete">Borrar</string>
     <string name="save">Guardar</string>
+    <string name="ok">OK</string>
+    <string name="options">Opciones</string>
 
+    <!-- Delete Dialog -->
+    <string name="dialog_delete_ingredient_title">¿Eliminar ingrediente?</string>
+    <string name="dialog_delete_ingredient_message">¿Estás seguro de que deseas eliminar \"%1$s\"? Esta acción no se puede deshacer.</string>
+    <string name="dialog_delete_recipe_title">¿Eliminar receta?</string>
+    <string name="dialog_delete_recipe_message">¿Estás seguro de que deseas eliminar la receta \"%1$s\"?</string>
+
+    <!-- Errors -->
+    <string name="error_empty_name">El nombre no puede estar vacío</string>
+    <string name="error_negative_quantity">La cantidad no puede ser negativa</string>
+    <string name="error_ingredient_already_exists">Ya existe un ingrediente con el nombre \"{name}\"</string>
+    <string name="error_recipe_already_exists">Ya existe una receta con el nombre \"{name}\"</string>
 
 </resources>

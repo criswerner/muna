@@ -2,6 +2,7 @@ package com.tiendamuna.stock.presentation.stock
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -134,24 +135,24 @@ fun StockScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SummaryCard(
-                    title = "TOTAL INGREDIENTES",
+                    title = stringResource(R.string.label_total_ingredients),
                     value = state.totalIngredientsCount.toString(),
-                    subtitle = "En catálogo",
+                    subtitle = stringResource(R.string.subtitle_in_catalog),
                     icon = Icons.Default.Inventory,
                     modifier = Modifier.weight(1f)
                 )
                 SummaryCard(
-                    title = "VALUACIÓN TOTAL",
+                    title = stringResource(R.string.label_total_valuation),
                     value = state.totalValuationDisplay,
-                    subtitle = "Capital invertido",
+                    subtitle = stringResource(R.string.subtitle_capital_invested),
                     icon = Icons.Default.AttachMoney,
                     modifier = Modifier.weight(1.3f),
                     valueColor = MaterialTheme.colorScheme.primary
                 )
                 SummaryCard(
-                    title = "ALERTAS",
+                    title = stringResource(R.string.label_alerts),
                     value = state.lowStockCount.toString(),
-                    subtitle = "Stock crítico",
+                    subtitle = stringResource(R.string.subtitle_critical_stock),
                     icon = Icons.Default.ReportProblem,
                     modifier = Modifier.weight(1f),
                     valueColor = if (state.lowStockCount > 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary
@@ -179,9 +180,9 @@ fun StockScreen(
                     .padding(horizontal = 8.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("INGREDIENTE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary, modifier = Modifier.weight(2f))
-                Text("STOCK", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary, modifier = Modifier.weight(1.2f), textAlign = TextAlign.End)
-                Text("VALOR", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary, modifier = Modifier.weight(1.4f), textAlign = TextAlign.End)
+                Text(stringResource(R.string.header_ingredient), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary, modifier = Modifier.weight(2f))
+                Text(stringResource(R.string.header_stock), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary, modifier = Modifier.weight(1.2f), textAlign = TextAlign.End)
+                Text(stringResource(R.string.header_value), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary, modifier = Modifier.weight(1.4f), textAlign = TextAlign.End)
                 Spacer(modifier = Modifier.width(48.dp)) // Menu icon space
             }
 
@@ -232,8 +233,8 @@ fun StockScreen(
     if (ingredientToDelete != null) {
         AlertDialog(
             onDismissRequest = { ingredientToDelete = null },
-            title = { Text("¿Eliminar ingrediente?") },
-            text = { Text("¿Estás seguro de que deseas eliminar '${ingredientToDelete?.name}'? Esta acción no se puede deshacer.") },
+            title = { Text(stringResource(R.string.dialog_delete_ingredient_title)) },
+            text = { Text(stringResource(R.string.dialog_delete_ingredient_message, ingredientToDelete?.name ?: "")) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -253,12 +254,12 @@ fun StockScreen(
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Eliminar")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { ingredientToDelete = null }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -324,7 +325,7 @@ fun CompactStockItem(
             }
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(10.dp))
 
         // Name & Threshold
         Column(modifier = Modifier.weight(2f)) {
@@ -338,7 +339,7 @@ fun CompactStockItem(
             )
             if (ingredient.minThreshold != null) {
                 Text(
-                    text = "Mín: ${String.format(Locale.getDefault(), "%.2f", ingredient.minThreshold)} ${ingredient.unit}",
+                    text = stringResource(R.string.label_min_threshold, String.format(Locale.getDefault(), "%.2f", ingredient.minThreshold), ingredient.unit),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.secondary,
                     fontSize = 9.sp
@@ -378,7 +379,7 @@ fun CompactStockItem(
             ) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
-                    contentDescription = "Opciones",
+                    contentDescription = stringResource(R.string.options),
                     tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f),
                     modifier = Modifier.size(20.dp)
                 )
@@ -388,7 +389,7 @@ fun CompactStockItem(
                 onDismissRequest = { showMenu = false }
             ) {
                 DropdownMenuItem(
-                    text = { Text("Editar") },
+                    text = { Text(stringResource(R.string.edit)) },
                     onClick = {
                         showMenu = false
                         onEdit()
@@ -396,7 +397,7 @@ fun CompactStockItem(
                     leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp)) }
                 )
                 DropdownMenuItem(
-                    text = { Text("Eliminar", color = MaterialTheme.colorScheme.error) },
+                    text = { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) },
                     onClick = {
                         showMenu = false
                         onDelete()
@@ -435,7 +436,7 @@ fun EditIngredientDialog(
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    text = "Editar Ingrediente",
+                    text = stringResource(R.string.title_edit_ingredient),
                     style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -469,14 +470,14 @@ fun EditIngredientDialog(
                 OutlinedTextField(
                     value = pricePerUnit,
                     onValueChange = { pricePerUnit = it },
-                    label = { Text("Precio por unidad ($)") },
+                    label = { Text(stringResource(R.string.label_price_per_unit_field)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = minThreshold,
                     onValueChange = { minThreshold = it },
-                    label = { Text("Alerta Stock Mínimo (Opcional)") },
+                    label = { Text(stringResource(R.string.label_threshold_optional)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 

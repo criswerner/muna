@@ -45,6 +45,7 @@ import com.tiendamuna.stock.domain.model.RecipeIngredient
 import com.tiendamuna.stock.domain.util.UnitConverter
 import com.tiendamuna.stock.presentation.stock.UnitSelector
 import com.tiendamuna.stock.utils.empty
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,10 +67,10 @@ fun RecipeFormScreen(
     var yieldUnit by remember { mutableStateOf(initialRecipe?.yieldUnit ?: MeasureUnit.UNIT.symbol) }
 
     var selectedIngredients by remember { 
-        mutableStateOf(
+        mutableStateOf<List<RecipeIngredient>>(
             initialRecipe?.ingredients?.map { 
                 RecipeIngredient(it.ingredientId, it.name, it.rawQuantity, it.unit) 
-            } ?: emptyList<RecipeIngredient>()
+            } ?: emptyList()
         ) 
     }
     
@@ -92,7 +93,7 @@ fun RecipeFormScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
-            title = { Text(if (recipeId == null) "Nueva Receta" else "Editar Receta") },
+            title = { Text(if (recipeId == null) stringResource(R.string.title_new_recipe) else stringResource(R.string.title_edit_recipe)) },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cancel))
@@ -115,7 +116,7 @@ fun RecipeFormScreen(
                     },
                     enabled = name.isNotBlank() && selectedIngredients.isNotEmpty() && yieldQuantity.toDoubleOrNull() != null
                 ) {
-                    Text(stringResource(R.string.save).uppercase(), style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.save).uppercase(Locale.getDefault()), style = MaterialTheme.typography.labelLarge)
                 }
             }
         )
@@ -139,7 +140,7 @@ fun RecipeFormScreen(
                 OutlinedTextField(
                     value = yieldQuantity,
                     onValueChange = { yieldQuantity = it },
-                    label = { Text("Rendimiento (ej: 12, 1.5)") },
+                    label = { Text(stringResource(R.string.label_yield_hint)) },
                     modifier = Modifier.weight(1f),
                     singleLine = true
                 )
@@ -156,7 +157,7 @@ fun RecipeFormScreen(
             OutlinedTextField(
                 value = instructions,
                 onValueChange = { instructions = it },
-                label = { Text("Instrucciones de preparación") },
+                label = { Text(stringResource(R.string.label_instructions_field)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3
             )
@@ -169,13 +170,18 @@ fun RecipeFormScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text(text = "Ingredientes", style = MaterialTheme.typography.titleMedium)
+                    Text(text = stringResource(R.string.label_ingredients), style = MaterialTheme.typography.titleMedium)
                     val costPerUnit = remember(estimatedCost, yieldQuantity) {
                         val qty = yieldQuantity.toDoubleOrNull() ?: 0.0
                         if (qty > 0) estimatedCost / qty else 0.0
                     }
                     Text(
-                        text = "Costo: $${String.format("%.2f", estimatedCost)} ($${String.format("%.2f", costPerUnit)}/$yieldUnit)",
+                        text = stringResource(
+                            R.string.label_cost_per_unit, 
+                            String.format(Locale.getDefault(), "%.2f", estimatedCost), 
+                            String.format(Locale.getDefault(), "%.2f", costPerUnit), 
+                            yieldUnit
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -186,7 +192,7 @@ fun RecipeFormScreen(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Añadir")
+                    Text(stringResource(R.string.button_add))
                 }
             }
             
@@ -195,7 +201,7 @@ fun RecipeFormScreen(
             if (selectedIngredients.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "No hay ingredientes añadidos",
+                        text = stringResource(R.string.text_no_ingredients),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.outline
                     )

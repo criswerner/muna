@@ -63,7 +63,7 @@ fun AddIngredientScreen(
                             modifier = Modifier.weight(1f)
                         )
                         TextButton(onClick = { viewModel.onEvent(StockEvent.ClearError) }) {
-                            Text("OK", color = MaterialTheme.colorScheme.onErrorContainer)
+                            Text(stringResource(R.string.ok), color = MaterialTheme.colorScheme.onErrorContainer)
                         }
                     }
                 }
@@ -104,7 +104,7 @@ fun AddIngredientScreen(
             OutlinedTextField(
                 value = totalPrice,
                 onValueChange = { totalPrice = it },
-                label = { Text("Precio Total Pagado ($)") },
+                label = { Text(stringResource(R.string.label_total_price_paid)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -113,8 +113,8 @@ fun AddIngredientScreen(
             OutlinedTextField(
                 value = minThreshold,
                 onValueChange = { minThreshold = it },
-                label = { Text("Alerta Stock Mínimo (Opcional)") },
-                placeholder = { Text("Ej: 100") },
+                label = { Text(stringResource(R.string.label_threshold_optional)) },
+                placeholder = { Text("Ej: 100") }, // Placeholder can stay as example, but could also be a resource
                 modifier = Modifier.fillMaxWidth()
             )
 
