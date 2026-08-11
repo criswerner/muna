@@ -20,7 +20,8 @@ class RemoteStockDataSource(private val db: FirebaseFirestore) {
                     quantity = (data["quantity"] as? Number)?.toDouble() ?: 0.0,
                     unit = data["unit"] as? String ?: "",
                     category = Category.valueOf(data["category"] as? String ?: Category.OTHERS.name),
-                    pricePerUnit = (data["pricePerUnit"] as? Number)?.toDouble() ?: 0.0
+                    pricePerUnit = (data["pricePerUnit"] as? Number)?.toDouble() ?: 0.0,
+                    minThreshold = (data["minThreshold"] as? Number)?.toDouble()
                 )
             }
             Result.success(ingredients)
@@ -31,7 +32,6 @@ class RemoteStockDataSource(private val db: FirebaseFirestore) {
 
     suspend fun syncStock(ingredients: List<Ingredient>): Result<Unit> {
         return try {
-            // This is a simple implementation. In a real app, you might want to use Batches.
             ingredients.forEach { ingredient ->
                 addOrUpdateIngredient(ingredient)
             }
@@ -48,7 +48,8 @@ class RemoteStockDataSource(private val db: FirebaseFirestore) {
                 "quantity" to ingredient.quantity,
                 "unit" to ingredient.unit,
                 "category" to ingredient.category.name,
-                "pricePerUnit" to ingredient.pricePerUnit
+                "pricePerUnit" to ingredient.pricePerUnit,
+                "minThreshold" to ingredient.minThreshold
             )
             ingredientsCollection.document(ingredient.id).set(data).await()
             Result.success(Unit)

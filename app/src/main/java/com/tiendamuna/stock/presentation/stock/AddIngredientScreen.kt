@@ -26,6 +26,7 @@ fun AddIngredientScreen(
     var unit by remember { mutableStateOf(MeasureUnit.GRAM.symbol) }
     var category by remember { mutableStateOf(Category.OTHERS) }
     var totalPrice by remember { mutableStateOf("") }
+    var minThreshold by remember { mutableStateOf("") }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -107,17 +108,28 @@ fun AddIngredientScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = minThreshold,
+                onValueChange = { minThreshold = it },
+                label = { Text("Alerta Stock Mínimo (Opcional)") },
+                placeholder = { Text("Ej: 100") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
                 onClick = {
                     viewModel.onEvent(
                         StockEvent.AddIngredient(
-                            name, 
-                            quantity.toDoubleOrNull() ?: 0.0, 
-                            unit, 
-                            category,
-                            totalPrice.toDoubleOrNull() ?: 0.0
+                            name = name, 
+                            quantity = quantity.toDoubleOrNull() ?: 0.0, 
+                            unit = unit, 
+                            category = category,
+                            totalPrice = totalPrice.toDoubleOrNull() ?: 0.0,
+                            minThreshold = minThreshold.toDoubleOrNull()
                         )
                     )
                     if (state.error == null) {

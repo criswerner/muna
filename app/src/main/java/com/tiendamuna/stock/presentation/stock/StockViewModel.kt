@@ -72,7 +72,8 @@ class StockViewModel(
                             quantity = event.quantity,
                             unit = event.unit,
                             category = event.category,
-                            totalPrice = event.totalPrice
+                            totalPrice = event.totalPrice,
+                            minThreshold = event.minThreshold
                         )
                         _error.value = null
                     } catch (e: Exception) {
@@ -115,7 +116,8 @@ sealed class StockEvent {
         val quantity: Double, 
         val unit: String, 
         val category: Category,
-        val totalPrice: Double
+        val totalPrice: Double,
+        val minThreshold: Double? = null
     ) : StockEvent()
     data class UpdateIngredient(val ingredient: Ingredient) : StockEvent()
     data class DeleteIngredient(val ingredient: Ingredient) : StockEvent()
