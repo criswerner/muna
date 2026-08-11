@@ -99,8 +99,11 @@
 
     <!-- Errors -->
     <string name="error_empty_name">El nombre no puede estar vacío</string>
-    <string name="error_negative_quantity">La cantidad no puede ser negativa</string>
-    <string name="error_ingredient_already_exists">Ya existe un ingrediente con el nombre \"{name}\"</string>
-    <string name="error_recipe_already_exists">Ya existe una receta con el nombre \"{name}\"</string>
+    <string name="error_invalid_quantity">La cantidad debe ser válida y mayor a cero</string>
+    <string name="error_incompatible_units">Ya existe \"%1$s\" con una unidad incompatible (%2$s)</string>
+    <string name="error_no_ingredients">La receta debe tener al menos un ingrediente</string>
+    <string name="error_name_already_taken">Ya existe otro elemento con el nombre \"%1$s\"</string>
+    <string name="error_insufficient_stock">No hay suficiente stock disponible para realizar esta operación</string>
+    <string name="error_unknown">Ha ocurrido un error inesperado</string>
 
 </resources>

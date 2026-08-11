@@ -5,6 +5,8 @@ import com.tiendamuna.stock.domain.usecase.AddIngredientUseCase
 import com.tiendamuna.stock.domain.usecase.DeleteIngredientUseCase
 import com.tiendamuna.stock.domain.usecase.GetStockUseCase
 import com.tiendamuna.stock.domain.usecase.UpdateIngredientUseCase
+import com.tiendamuna.stock.presentation.common.mapper.ErrorMessageHelper
+import io.mockk.every
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +33,7 @@ class StockViewModelTest {
     private lateinit var addIngredientUseCase: AddIngredientUseCase
     private lateinit var updateIngredientUseCase: UpdateIngredientUseCase
     private lateinit var deleteIngredientUseCase: DeleteIngredientUseCase
+    private lateinit var errorMessageHelper: ErrorMessageHelper
     private lateinit var viewModel: StockViewModel
 
     @Before
@@ -41,6 +44,7 @@ class StockViewModelTest {
         addIngredientUseCase = mockk(relaxed = true)
         updateIngredientUseCase = mockk(relaxed = true)
         deleteIngredientUseCase = mockk(relaxed = true)
+        errorMessageHelper = mockk(relaxed = true)
         
         // Default behavior for init block
         coEvery { getStockUseCase() } returns flowOf(emptyList())
@@ -49,7 +53,8 @@ class StockViewModelTest {
             getStockUseCase,
             addIngredientUseCase,
             updateIngredientUseCase,
-            deleteIngredientUseCase
+            deleteIngredientUseCase,
+            errorMessageHelper
         )
     }
 
@@ -75,7 +80,7 @@ class StockViewModelTest {
         coEvery { getStockUseCase() } returns flowOf(ingredients)
         
         // Re-init to trigger the flow collection in init block
-        viewModel = StockViewModel(getStockUseCase, addIngredientUseCase, updateIngredientUseCase, deleteIngredientUseCase)
+        viewModel = StockViewModel(getStockUseCase, addIngredientUseCase, updateIngredientUseCase, deleteIngredientUseCase, errorMessageHelper)
         val collectJob = launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -93,7 +98,7 @@ class StockViewModelTest {
             Ingredient(name = "Sal", quantity = 1.0, unit = "kg")
         )
         coEvery { getStockUseCase() } returns flowOf(ingredients)
-        viewModel = StockViewModel(getStockUseCase, addIngredientUseCase, updateIngredientUseCase, deleteIngredientUseCase)
+        viewModel = StockViewModel(getStockUseCase, addIngredientUseCase, updateIngredientUseCase, deleteIngredientUseCase, errorMessageHelper)
         val collectJob = launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -111,9 +116,11 @@ class StockViewModelTest {
     fun `when add ingredient fails should update error state`() = runTest {
         // Given
         val errorMessage = "Error de validación"
+        val exception = IllegalArgumentException()
         coEvery { 
-            addIngredientUseCase(any(), any(), any(), any(), any()) 
-        } throws IllegalArgumentException(errorMessage)
+            addIngredientUseCase(any(), any(), any(), any(), any(), any()) 
+        } throws exception
+        every { errorMessageHelper.getMessage(exception) } returns errorMessage
 
         val collectJob = launch { viewModel.state.collect {} }
 

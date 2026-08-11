@@ -1,14 +1,15 @@
 package com.tiendamuna.stock.domain.usecase
 
+import com.tiendamuna.stock.domain.model.DomainException
 import com.tiendamuna.stock.domain.model.Ingredient
 import com.tiendamuna.stock.domain.repository.StockRepository
 import kotlinx.coroutines.flow.first
 
 class UpdateIngredientUseCase(private val repository: StockRepository) {
     suspend operator fun invoke(ingredient: Ingredient) {
-        if (ingredient.name.isBlank()) throw IllegalArgumentException("El nombre no puede estar vacío")
-        if (ingredient.quantity < 0) throw IllegalArgumentException("La cantidad no puede ser negativa")
-        if (ingredient.pricePerUnit < 0) throw IllegalArgumentException("El precio no puede ser negativo")
+        if (ingredient.name.isBlank()) throw DomainException.EmptyName
+        if (ingredient.quantity < 0) throw DomainException.InvalidQuantity
+        if (ingredient.pricePerUnit < 0) throw DomainException.InvalidQuantity // Reuse or specific one
         
         val currentStock = repository.getStock().first()
         val nameAlreadyTaken = currentStock.any { 
@@ -16,7 +17,7 @@ class UpdateIngredientUseCase(private val repository: StockRepository) {
         }
         
         if (nameAlreadyTaken) {
-            throw IllegalArgumentException("No se puede renombrar: ya existe otro ingrediente con el nombre '${ingredient.name}'")
+            throw DomainException.NameAlreadyTaken(ingredient.name)
         }
 
         repository.updateIngredient(ingredient)

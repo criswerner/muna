@@ -1,5 +1,6 @@
 package com.tiendamuna.stock.domain.usecase
 
+import com.tiendamuna.stock.domain.model.DomainException
 import com.tiendamuna.stock.domain.model.Recipe
 import com.tiendamuna.stock.domain.model.RecipeIngredient
 import com.tiendamuna.stock.domain.model.Ingredient
@@ -28,7 +29,7 @@ class PrepareRecipeUseCaseTest {
     @Test
     fun `when batches is zero or less should throw exception`() = runTest {
         val recipe = mockk<Recipe>()
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(DomainException.InvalidQuantity::class.java) {
             runBlocking {
                 useCase(recipe, batches = 0.0)
             }

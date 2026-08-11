@@ -51,7 +51,8 @@ class MainActivity : ComponentActivity() {
                                 container.getStockUseCase, 
                                 container.addIngredientUseCase,
                                 container.updateIngredientUseCase,
-                                container.deleteIngredientUseCase
+                                container.deleteIngredientUseCase,
+                                container.errorMessageHelper
                             ) as T
                         }
                     }
@@ -68,7 +69,8 @@ class MainActivity : ComponentActivity() {
                                 container.getStockUseCase,
                                 container.updateRecipeUseCase,
                                 container.deleteRecipeUseCase,
-                                container.addHistoryEntryUseCase
+                                container.addHistoryEntryUseCase,
+                                container.errorMessageHelper
                             ) as T
                         }
                     }
@@ -103,7 +105,7 @@ class MainActivity : ComponentActivity() {
                                 NavigationItem(
                                     route = "history",
                                     icon = Icons.Default.History,
-                                    label = "Historial"
+                                    label = stringResource(R.string.title_history)
                                 )
                             )
                             StockBottomNavigation(

@@ -8,6 +8,7 @@ import com.tiendamuna.stock.domain.usecase.AddIngredientUseCase
 import com.tiendamuna.stock.domain.usecase.DeleteIngredientUseCase
 import com.tiendamuna.stock.domain.usecase.GetStockUseCase
 import com.tiendamuna.stock.domain.usecase.UpdateIngredientUseCase
+import com.tiendamuna.stock.presentation.common.mapper.ErrorMessageHelper
 import com.tiendamuna.stock.presentation.stock.mapper.toUiModel
 import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
 import com.tiendamuna.stock.presentation.stock.model.StockStatus
@@ -23,7 +24,8 @@ class StockViewModel(
     private val getStockUseCase: GetStockUseCase,
     private val addIngredientUseCase: AddIngredientUseCase,
     private val updateIngredientUseCase: UpdateIngredientUseCase,
-    private val deleteIngredientUseCase: DeleteIngredientUseCase
+    private val deleteIngredientUseCase: DeleteIngredientUseCase,
+    private val errorMessageHelper: ErrorMessageHelper
 ) : ViewModel() {
 
     private val _ingredients = MutableStateFlow<List<IngredientUiModel>>(emptyList())
@@ -87,7 +89,7 @@ class StockViewModel(
                         )
                         _error.value = null
                     } catch (e: Exception) {
-                        _error.value = e.message
+                        _error.value = errorMessageHelper.getMessage(e)
                     }
                 }
             }
@@ -103,8 +105,9 @@ class StockViewModel(
                 viewModelScope.launch {
                     try {
                         updateIngredientUseCase(event.ingredient)
+                        _error.value = null
                     } catch (e: Exception) {
-                        _error.value = e.message
+                        _error.value = errorMessageHelper.getMessage(e)
                     }
                 }
             }

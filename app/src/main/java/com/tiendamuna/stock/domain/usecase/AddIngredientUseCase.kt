@@ -1,6 +1,7 @@
 package com.tiendamuna.stock.domain.usecase
 
 import com.tiendamuna.stock.domain.model.Category
+import com.tiendamuna.stock.domain.model.DomainException
 import com.tiendamuna.stock.domain.model.Ingredient
 import com.tiendamuna.stock.domain.repository.StockRepository
 import com.tiendamuna.stock.domain.util.PriceCalculator
@@ -16,8 +17,8 @@ class AddIngredientUseCase(private val repository: StockRepository) {
         totalPrice: Double = 0.0,
         minThreshold: Double? = null
     ) {
-        if (name.isBlank()) throw IllegalArgumentException("El nombre no puede estar vacío")
-        if (quantity <= 0) throw IllegalArgumentException("La cantidad debe ser mayor a 0")
+        if (name.isBlank()) throw DomainException.EmptyName
+        if (quantity <= 0) throw DomainException.InvalidQuantity
         
         val currentStock = repository.getStock().first()
         val existingIngredient = currentStock.find { it.name.trim().lowercase() == name.trim().lowercase() }
@@ -44,11 +45,11 @@ class AddIngredientUseCase(private val repository: StockRepository) {
                 )
                 repository.updateIngredient(updatedIngredient)
             } else {
-                throw IllegalArgumentException("Ya existe '$name' con una unidad incompatible (${existingIngredient.unit}). No se puede combinar.")
+                throw DomainException.IncompatibleUnits(name, existingIngredient.unit)
             }
         } else {
             // New ingredient
-            val unitPrice = totalPrice / quantity
+            val unitPrice = if (quantity > 0) totalPrice / quantity else 0.0
             val ingredient = Ingredient(
                 name = name, 
                 quantity = quantity, 
