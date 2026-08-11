@@ -75,6 +75,29 @@ class StockIntegrationTest {
     }
 
     @Test
+    fun clickIngredientMenu_opensEditDialog() {
+        composeTestRule.setContent {
+            val navController = rememberNavController()
+            StockNavGraph(
+                navController = navController,
+                stockViewModel = stockViewModel,
+                recipeViewModel = recipeViewModel,
+                historyViewModel = historyViewModel
+            )
+        }
+
+        // Click on the three dots menu
+        composeTestRule.onNodeWithContentDescription("Opciones").performClick()
+        
+        // Click on Edit in the menu
+        composeTestRule.onNodeWithText("Editar").performClick()
+
+        // Verify Edit Dialog is shown
+        composeTestRule.onNodeWithText("Editar Ingrediente", ignoreCase = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Harina").assertIsDisplayed()
+    }
+
+    @Test
     fun addIngredient_callsUseCaseAndNavigatesBack() {
         composeTestRule.setContent {
             val navController = rememberNavController()
@@ -96,7 +119,7 @@ class StockIntegrationTest {
         composeTestRule.onNodeWithText("Cantidad", ignoreCase = true).performTextInput("5")
         composeTestRule.onNodeWithText("Precio Total Pagado ($)", ignoreCase = true).performTextInput("250")
 
-        // Click Add button - matching exactly with what is in strings.xml or ignoring case
+        // Click Add button
         composeTestRule.onNodeWithText("Agregar al stock", ignoreCase = true).performClick()
 
         // Verify Use Case call
@@ -106,11 +129,12 @@ class StockIntegrationTest {
                 quantity = 5.0,
                 unit = any(), 
                 category = any(),
-                totalPrice = 250.0
+                totalPrice = 250.0,
+                minThreshold = any()
             )
         }
         
-        // Verify navigation back (should see inventory title again)
+        // Verify navigation back
         composeTestRule.onNodeWithText("Inventario", ignoreCase = true).assertIsDisplayed()
     }
 }
