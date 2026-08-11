@@ -1,9 +1,12 @@
 package com.tiendamuna.stock.presentation.stock
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -19,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.tiendamuna.stock.domain.model.Category
@@ -259,70 +263,129 @@ fun StockItem(
     onDelete: () -> Unit,
     onEdit: () -> Unit
 ) {
-    val cardColor = when (ingredient.status) {
-        StockStatus.OUT_OF_STOCK -> MaterialTheme.colorScheme.errorContainer
-        StockStatus.LOW_STOCK -> Color(0xFFFFF3E0) // Light orange
-        StockStatus.NORMAL -> MaterialTheme.colorScheme.surface
-    }
-
-    val icon = when (ingredient.status) {
-        StockStatus.OUT_OF_STOCK -> Icons.Default.Error
-        StockStatus.LOW_STOCK -> Icons.Default.Warning
-        StockStatus.NORMAL -> null
-    }
-
-    val statusTint = when (ingredient.status) {
+    val statusColor = when (ingredient.status) {
         StockStatus.OUT_OF_STOCK -> MaterialTheme.colorScheme.error
-        StockStatus.LOW_STOCK -> Color(0xFFE65100) // Dark orange
+        StockStatus.LOW_STOCK -> Color(0xFFF57C00) // Vibrant orange
         StockStatus.NORMAL -> Color.Transparent
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = cardColor)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = MaterialTheme.shapes.medium
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
+                .height(IntrinsicSize.Min)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                if (icon != null) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = statusTint,
-                        modifier = Modifier.padding(end = 12.dp).size(24.dp)
-                    )
-                }
-                Column {
+            // 1. Lateral status indicator
+            if (ingredient.status != StockStatus.NORMAL) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(6.dp)
+                        .background(statusColor)
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    // 2. Category tag
                     Text(
-                        text = ingredient.name, 
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = if (ingredient.status == StockStatus.OUT_OF_STOCK) MaterialTheme.colorScheme.onErrorContainer else Color.Unspecified
+                        text = ingredient.categoryName.uppercase(),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.padding(bottom = 2.dp)
                     )
+
+                    // 3. Ingredient name
                     Text(
-                        text = "${ingredient.categoryName} • ${ingredient.quantityDisplay} • ${ingredient.priceDisplay}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = if (ingredient.status == StockStatus.OUT_OF_STOCK) MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f) else MaterialTheme.colorScheme.secondary
+                        text = ingredient.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                     )
-                    if (ingredient.status == StockStatus.LOW_STOCK) {
-                        Text(
-                            text = "Stock bajo (Mín: ${ingredient.minThreshold} ${ingredient.unit})",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = statusTint
-                        )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // 4. Status Badge (Chip)
+                    if (ingredient.status != StockStatus.NORMAL) {
+                        Surface(
+                            color = statusColor.copy(alpha = 0.1f),
+                            shape = CircleShape,
+                            border = BorderStroke(1.dp, statusColor.copy(alpha = 0.5f))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = if (ingredient.status == StockStatus.OUT_OF_STOCK) 
+                                        Icons.Default.Error else Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = statusColor,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = if (ingredient.status == StockStatus.OUT_OF_STOCK) 
+                                        "Sin Stock" else "Stock Bajo",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = statusColor,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
                     }
                 }
-            }
-            Row {
-                IconButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit), tint = MaterialTheme.colorScheme.primary)
+
+                // 5. Quantity and Price info
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                ) {
+                    Text(
+                        text = ingredient.quantityDisplay,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = if (ingredient.status == StockStatus.OUT_OF_STOCK) 
+                            MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = ingredient.priceDisplay,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
                 }
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete), tint = MaterialTheme.colorScheme.error)
+
+                // 6. Minimalist action buttons
+                Row {
+                    IconButton(onClick = onEdit) {
+                        Icon(
+                            Icons.Default.Edit, 
+                            contentDescription = null, 
+                            tint = MaterialTheme.colorScheme.outline,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    IconButton(onClick = onDelete) {
+                        Icon(
+                            Icons.Default.Delete, 
+                            contentDescription = null, 
+                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.6f),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
         }
