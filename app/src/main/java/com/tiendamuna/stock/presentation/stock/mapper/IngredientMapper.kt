@@ -17,7 +17,7 @@ fun Ingredient.toUiModel(): IngredientUiModel {
     return IngredientUiModel(
         id = id,
         name = name,
-        quantityDisplay = "$quantity $unit",
+        quantityDisplay = "${String.format(Locale.getDefault(), "%.2f", quantity)} $unit",
         rawQuantity = quantity,
         unit = unit,
         categoryName = category.displayName,

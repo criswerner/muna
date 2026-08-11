@@ -7,11 +7,14 @@ import java.util.Locale
 
 fun PreparationHistory.toUiModel(): HistoryUiModel {
     val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    val batchesFormatted = String.format(Locale.getDefault(), "%.2f", batchesPrepared)
+    val totalQtyFormatted = String.format(Locale.getDefault(), "%.2f", totalProducedQuantity)
+    
     return HistoryUiModel(
         id = id,
         recipeName = recipeName,
-        preparationDetail = "Preparado $batchesPrepared lotes ($totalProducedQuantity $yieldUnit)",
-        costDisplay = "$${String.format(Locale.getDefault(), "%.2f", totalCost)}",
+        preparationDetail = "Preparado $batchesFormatted lotes ($totalQtyFormatted $yieldUnit)",
+        costDisplay = "$${String.format(Locale.getDefault(), "%,.2f", totalCost)}",
         dateDisplay = dateFormat.format(timestamp)
     )
 }

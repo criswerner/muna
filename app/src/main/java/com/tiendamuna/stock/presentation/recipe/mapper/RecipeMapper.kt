@@ -6,6 +6,7 @@ import com.tiendamuna.stock.domain.model.RecipeIngredient
 import com.tiendamuna.stock.domain.util.UnitConverter
 import com.tiendamuna.stock.presentation.recipe.model.RecipeIngredientUiModel
 import com.tiendamuna.stock.presentation.recipe.model.RecipeUiModel
+import java.util.Locale
 
 fun Recipe.toUiModel(stock: List<Ingredient>): RecipeUiModel {
     val uiIngredients = ingredients.map { it.toUiModel(stock) }
@@ -18,11 +19,11 @@ fun Recipe.toUiModel(stock: List<Ingredient>): RecipeUiModel {
         ingredients = uiIngredients,
         instructions = instructions,
         totalCost = totalCost,
-        costDisplay = "$${String.format("%.2f", totalCost)}",
-        yieldDisplay = "$yieldQuantity $yieldUnit",
+        costDisplay = "$${String.format(Locale.getDefault(), "%,.2f", totalCost)}",
+        yieldDisplay = "${String.format(Locale.getDefault(), "%.2f", yieldQuantity)} $yieldUnit",
         yieldQuantity = yieldQuantity,
         yieldUnit = yieldUnit,
-        costPerYieldUnitDisplay = "$${String.format("%.2f", costPerUnit)}/$yieldUnit"
+        costPerYieldUnitDisplay = "$${String.format(Locale.getDefault(), "%,.2f", costPerUnit)}/$yieldUnit"
     )
 }
 
@@ -40,10 +41,10 @@ fun RecipeIngredient.toUiModel(stock: List<Ingredient>): RecipeIngredientUiModel
     return RecipeIngredientUiModel(
         ingredientId = ingredientId,
         name = name,
-        quantityDisplay = "$quantityRequired $unit",
+        quantityDisplay = "${String.format(Locale.getDefault(), "%.2f", quantityRequired)} $unit",
         rawQuantity = quantityRequired,
         unit = unit,
         cost = cost,
-        costDisplay = "$${String.format("%.2f", cost)}"
+        costDisplay = "$${String.format(Locale.getDefault(), "%,.2f", cost)}"
     )
 }
