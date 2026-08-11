@@ -19,5 +19,7 @@ data class IngredientUiModel(
     val pricePerUnit: Double,
     val priceDisplay: String,
     val minThreshold: Double?,
-    val status: StockStatus = StockStatus.NORMAL
+    val status: StockStatus = StockStatus.NORMAL,
+    val valuation: Double = 0.0,
+    val valuationDisplay: String = ""
 )

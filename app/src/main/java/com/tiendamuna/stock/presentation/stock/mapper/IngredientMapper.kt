@@ -3,6 +3,7 @@ package com.tiendamuna.stock.presentation.stock.mapper
 import com.tiendamuna.stock.domain.model.Ingredient
 import com.tiendamuna.stock.presentation.stock.model.IngredientUiModel
 import com.tiendamuna.stock.presentation.stock.model.StockStatus
+import java.util.Locale
 
 fun Ingredient.toUiModel(): IngredientUiModel {
     val status = when {
@@ -10,6 +11,8 @@ fun Ingredient.toUiModel(): IngredientUiModel {
         minThreshold != null && quantity < minThreshold -> StockStatus.LOW_STOCK
         else -> StockStatus.NORMAL
     }
+
+    val valuation = quantity * pricePerUnit
 
     return IngredientUiModel(
         id = id,
@@ -19,8 +22,10 @@ fun Ingredient.toUiModel(): IngredientUiModel {
         unit = unit,
         categoryName = category.displayName,
         pricePerUnit = pricePerUnit,
-        priceDisplay = "$${String.format("%.2f", pricePerUnit)}/$unit",
+        priceDisplay = "$${String.format(Locale.getDefault(), "%.2f", pricePerUnit)}/$unit",
         minThreshold = minThreshold,
-        status = status
+        status = status,
+        valuation = valuation,
+        valuationDisplay = "$${String.format(Locale.getDefault(), "%,.2f", valuation)}"
     )
 }
