@@ -2,11 +2,13 @@ package com.tiendamuna.stock.presentation.stock
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -15,15 +17,19 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.tiendamuna.stock.domain.model.Category
 import com.tiendamuna.stock.domain.model.Ingredient
@@ -80,16 +86,11 @@ fun StockScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.title_inventory),
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.weight(1f)
-                )
-            }
+            Text(
+                text = stringResource(R.string.title_inventory),
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
             
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -107,7 +108,7 @@ fun StockScreen(
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(state.ingredients) { ingredient ->
                     StockItem(
@@ -136,7 +137,9 @@ fun StockScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
-                .testTag("add_ingredient_fab")
+                .testTag("add_ingredient_fab"),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
         ) {
             Icon(Icons.Default.Add, contentDescription = stringResource(R.string.title_add_stock))
         }
@@ -263,129 +266,162 @@ fun StockItem(
     onDelete: () -> Unit,
     onEdit: () -> Unit
 ) {
-    val statusColor = when (ingredient.status) {
-        StockStatus.OUT_OF_STOCK -> MaterialTheme.colorScheme.error
-        StockStatus.LOW_STOCK -> Color(0xFFF57C00) // Vibrant orange
-        StockStatus.NORMAL -> Color.Transparent
-    }
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = MaterialTheme.shapes.medium
+            .clip(RoundedCornerShape(24.dp)),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
-        Row(
-            modifier = Modifier
-                .height(IntrinsicSize.Min)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // 1. Lateral status indicator
-            if (ingredient.status != StockStatus.NORMAL) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(6.dp)
-                        .background(statusColor)
-                )
-            }
-
+        Column(modifier = Modifier.padding(20.dp)) {
+            // 1. Header
             Row(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    // 2. Category tag
-                    Text(
-                        text = ingredient.categoryName.uppercase(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.padding(bottom = 2.dp)
-                    )
+                // Ingredient Icon
+                Surface(
+                    modifier = Modifier.size(48.dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            Icons.Default.Inventory,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
 
-                    // 3. Ingredient name
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = ingredient.name,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
                     )
+                    Text(
+                        text = ingredient.categoryName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
 
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // 4. Status Badge (Chip)
-                    if (ingredient.status != StockStatus.NORMAL) {
-                        Surface(
-                            color = statusColor.copy(alpha = 0.1f),
-                            shape = CircleShape,
-                            border = BorderStroke(1.dp, statusColor.copy(alpha = 0.5f))
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = if (ingredient.status == StockStatus.OUT_OF_STOCK) 
-                                        Icons.Default.Error else Icons.Default.Warning,
-                                    contentDescription = null,
-                                    tint = statusColor,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = if (ingredient.status == StockStatus.OUT_OF_STOCK) 
-                                        "Sin Stock" else "Stock Bajo",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = statusColor,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                        }
+                // Status Badge
+                val statusColor = when (ingredient.status) {
+                    StockStatus.OUT_OF_STOCK -> MaterialTheme.colorScheme.error
+                    StockStatus.LOW_STOCK -> Color(0xFFF59E0B)
+                    StockStatus.NORMAL -> MaterialTheme.colorScheme.tertiary
+                }
+                
+                Surface(
+                    color = statusColor.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, statusColor.copy(alpha = 0.5f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = when(ingredient.status) {
+                                StockStatus.OUT_OF_STOCK -> Icons.Default.Error
+                                StockStatus.LOW_STOCK -> Icons.Default.Warning
+                                StockStatus.NORMAL -> Icons.Default.CheckCircle
+                            },
+                            contentDescription = null,
+                            tint = statusColor,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = when(ingredient.status) {
+                                StockStatus.OUT_OF_STOCK -> "Agotado"
+                                StockStatus.LOW_STOCK -> "Bajo"
+                                StockStatus.NORMAL -> "Ok"
+                            },
+                            style = MaterialTheme.typography.labelSmall,
+                            color = statusColor,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
+            }
 
-                // 5. Quantity and Price info
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    modifier = Modifier.padding(horizontal = 12.dp)
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // 2. Quantity & Price Box
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.05f))
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = ingredient.quantityDisplay,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = if (ingredient.status == StockStatus.OUT_OF_STOCK) 
-                            MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = ingredient.priceDisplay,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.outline
-                    )
+                    Column {
+                        Text(
+                            text = "DISPONIBLE",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary,
+                            letterSpacing = 1.sp
+                        )
+                        Text(
+                            text = ingredient.quantityDisplay,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = if (ingredient.status == StockStatus.OUT_OF_STOCK) 
+                                MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = "PRECIO / UNIT.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary,
+                            letterSpacing = 1.sp
+                        )
+                        Text(
+                            text = ingredient.priceDisplay,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
                 }
+            }
 
-                // 6. Minimalist action buttons
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 3. Footer Actions
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Row {
                     IconButton(onClick = onEdit) {
-                        Icon(
-                            Icons.Default.Edit, 
-                            contentDescription = null, 
-                            tint = MaterialTheme.colorScheme.outline,
-                            modifier = Modifier.size(20.dp)
-                        )
+                        Icon(Icons.Default.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
                     }
                     IconButton(onClick = onDelete) {
-                        Icon(
-                            Icons.Default.Delete, 
-                            contentDescription = null, 
-                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.6f),
-                            modifier = Modifier.size(20.dp)
-                        )
+                        Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
                     }
+                }
+                
+                if (ingredient.minThreshold != null) {
+                    Text(
+                        text = "Umbral: ${ingredient.minThreshold} ${ingredient.unit}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f)
+                    )
                 }
             }
         }

@@ -59,11 +59,15 @@ fun RecipeScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text(text = stringResource(R.string.title_recipes), style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text = stringResource(R.string.title_recipes), 
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
             state.error?.let { error ->
-                Text(text = error, color = Color.Red)
+                Text(text = error, color = MaterialTheme.colorScheme.error)
                 Button(onClick = { viewModel.onEvent(RecipeEvent.ClearError) }) {
                     Text("OK")
                 }
@@ -72,7 +76,7 @@ fun RecipeScreen(
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(state.recipes) { recipe ->
                     RecipeItem(
@@ -98,7 +102,9 @@ fun RecipeScreen(
             onClick = onNavigateToCreate,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
         ) {
             Icon(Icons.Default.Add, contentDescription = "Nueva Receta")
         }
@@ -214,7 +220,7 @@ fun IngredientPicker(
             modifier = Modifier.fillMaxWidth().padding(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = "Seleccionar Ingrediente", style = MaterialTheme.typography.titleMedium) // Could use resource
+                Text(text = "Seleccionar Ingrediente", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 DropDownList(
@@ -315,7 +321,7 @@ fun RecipeItem(
             .clip(RoundedCornerShape(24.dp))
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF0F172A) // Dark background like the image
+            containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -328,14 +334,14 @@ fun RecipeItem(
                 Surface(
                     modifier = Modifier.size(48.dp),
                     shape = CircleShape,
-                    color = Color(0xFF1E293B),
-                    border = BorderStroke(1.dp, Color(0xFFFBC02D).copy(alpha = 0.3f))
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             Icons.Default.RestaurantMenu,
                             contentDescription = null,
-                            tint = Color(0xFFFBC02D),
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -353,15 +359,15 @@ fun RecipeItem(
                     Text(
                         text = "Rinde por lote: ${recipe.yieldDisplay}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 }
 
                 // Status Badge
                 Surface(
-                    color = Color(0xFF064E3B).copy(alpha = 0.2f),
+                    color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f),
                     shape = RoundedCornerShape(12.dp),
-                    border = BorderStroke(1.dp, Color(0xFF10B981).copy(alpha = 0.5f))
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f))
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -370,14 +376,14 @@ fun RecipeItem(
                         Icon(
                             Icons.Default.CheckCircle,
                             contentDescription = null,
-                            tint = Color(0xFF10B981),
+                            tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier.size(14.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Listo",
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFF10B981),
+                            color = MaterialTheme.colorScheme.tertiary,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -390,7 +396,7 @@ fun RecipeItem(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                color = Color(0xFF1E293B).copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                 border = BorderStroke(1.dp, Color.White.copy(alpha = 0.05f))
             ) {
                 Row(
@@ -401,28 +407,28 @@ fun RecipeItem(
                         Text(
                             text = "COSTO / LOTE",
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.secondary,
                             letterSpacing = 1.sp
                         )
                         Text(
                             text = recipe.costDisplay,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color(0xFFFBC02D) // Yellowish cost
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
                             text = "COSTO / UNID.",
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.secondary,
                             letterSpacing = 1.sp
                         )
                         Text(
                             text = recipe.costPerYieldUnitDisplay,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color(0xFF66BB6A) // Greenish cost
+                            color = MaterialTheme.colorScheme.tertiary
                         )
                     }
                 }
@@ -434,7 +440,7 @@ fun RecipeItem(
             Text(
                 text = "INGREDIENTES (${recipe.ingredients.size})",
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.secondary,
                 letterSpacing = 1.sp,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
@@ -447,14 +453,14 @@ fun RecipeItem(
                 recipe.ingredients.forEach { ingredient ->
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = Color(0xFF1E293B),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         border = BorderStroke(0.5.dp, Color.White.copy(alpha = 0.1f))
                     ) {
                         Text(
                             text = "${ingredient.name}: ${ingredient.quantityDisplay}",
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.LightGray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -472,12 +478,12 @@ fun RecipeItem(
                 Text(
                     text = "Ver Instrucciones de Cocina",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.LightGray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Icon(
                     imageVector = Icons.Default.ExpandMore,
                     contentDescription = null,
-                    tint = Color.Gray,
+                    tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -486,7 +492,7 @@ fun RecipeItem(
                 Text(
                     text = if (recipe.instructions.isBlank()) "Sin instrucciones registradas" else recipe.instructions,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
                 )
             }
@@ -503,10 +509,10 @@ fun RecipeItem(
             ) {
                 Row {
                     IconButton(onClick = onEdit) {
-                        Icon(Icons.Default.Edit, contentDescription = null, tint = Color.Gray)
+                        Icon(Icons.Default.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
                     }
                     IconButton(onClick = onDelete) {
-                        Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Gray)
+                        Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
                     }
                 }
 
