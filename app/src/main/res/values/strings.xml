@@ -23,7 +23,7 @@
 
     <string name="status_out_of_stock">Agotado</string>
     <string name="status_low_stock">Bajo</string>
-    <string name="status_ok">Ok</string>
+    <string name="status_ok">@android:string/ok</string>
     <string name="label_min_threshold">Mín: %1$s %2$s</string>
     <string name="label_threshold_optional">Alerta Stock Mínimo (Opcional)</string>
     <string name="label_total_price_paid">Precio Total Pagado ($)</string>
