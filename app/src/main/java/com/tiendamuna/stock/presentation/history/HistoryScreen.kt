@@ -17,9 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.tiendamuna.stock.R
 import com.tiendamuna.stock.presentation.history.model.HistoryUiModel
 
 @Composable
@@ -34,7 +36,7 @@ fun HistoryScreen(
             .padding(16.dp)
     ) {
         Text(
-            text = "Historial de Preparaciones",
+            text = stringResource(R.string.title_history),
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -42,7 +44,7 @@ fun HistoryScreen(
 
         if (state.entries.isEmpty() && !state.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = "Aún no has preparado ninguna receta", color = MaterialTheme.colorScheme.secondary)
+                Text(text = stringResource(R.string.text_empty_history), color = MaterialTheme.colorScheme.secondary)
             }
         } else {
             LazyColumn(
@@ -125,7 +127,7 @@ fun HistoryItem(entry: HistoryUiModel) {
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Detalle",
+                            text = stringResource(R.string.label_history_detail),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.secondary,
                             fontWeight = FontWeight.Medium
@@ -150,14 +152,14 @@ fun HistoryItem(entry: HistoryUiModel) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "PREPARACIÓN",
+                            text = stringResource(R.string.label_history_preparation),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.secondary,
                             letterSpacing = 1.sp,
                             fontSize = 10.sp
                         )
                         Text(
-                            text = "COSTO TOTAL",
+                            text = stringResource(R.string.label_history_total_cost),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.secondary,
                             letterSpacing = 1.sp,
@@ -173,7 +175,7 @@ fun HistoryItem(entry: HistoryUiModel) {
                         verticalAlignment = Alignment.Bottom
                     ) {
                         Text(
-                            text = entry.preparationDetail,
+                            text = stringResource(R.string.history_preparation_detail, entry.batchesPrepared, entry.totalProducedQuantity, entry.yieldUnit),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,

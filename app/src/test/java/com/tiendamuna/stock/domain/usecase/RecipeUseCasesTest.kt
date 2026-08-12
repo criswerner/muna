@@ -1,7 +1,7 @@
 package com.tiendamuna.stock.domain.usecase
 
+import com.tiendamuna.stock.domain.model.DomainException
 import com.tiendamuna.stock.domain.model.Recipe
-import com.tiendamuna.stock.domain.model.RecipeIngredient
 import com.tiendamuna.stock.domain.repository.RecipeRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -27,7 +27,7 @@ class RecipeUseCasesTest {
         val useCase = AddRecipeUseCase(repository)
         val recipe = Recipe(name = "", ingredients = listOf(mockk()))
         
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(DomainException.EmptyName::class.java) {
             runBlocking { useCase(recipe) }
         }
     }
@@ -37,7 +37,7 @@ class RecipeUseCasesTest {
         val useCase = AddRecipeUseCase(repository)
         val recipe = Recipe(name = "Pan", ingredients = emptyList())
         
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(DomainException.NoIngredientsInRecipe::class.java) {
             runBlocking { useCase(recipe) }
         }
     }

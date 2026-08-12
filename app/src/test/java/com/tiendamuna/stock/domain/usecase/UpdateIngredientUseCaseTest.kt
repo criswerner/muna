@@ -1,5 +1,6 @@
 package com.tiendamuna.stock.domain.usecase
 
+import com.tiendamuna.stock.domain.model.DomainException
 import com.tiendamuna.stock.domain.model.Ingredient
 import com.tiendamuna.stock.domain.repository.StockRepository
 import io.mockk.coEvery
@@ -26,7 +27,7 @@ class UpdateIngredientUseCaseTest {
     @Test
     fun `when name is blank should throw exception`() = runTest {
         val ingredient = Ingredient(id = "1", name = "", quantity = 10.0, unit = "g")
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(DomainException.EmptyName::class.java) {
             runBlocking { useCase(ingredient) }
         }
     }
@@ -34,7 +35,7 @@ class UpdateIngredientUseCaseTest {
     @Test
     fun `when quantity is negative should throw exception`() = runTest {
         val ingredient = Ingredient(id = "1", name = "Harina", quantity = -1.0, unit = "g")
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(DomainException.InvalidQuantity::class.java) {
             runBlocking { useCase(ingredient) }
         }
     }
@@ -47,7 +48,7 @@ class UpdateIngredientUseCaseTest {
         coEvery { repository.getStock() } returns flowOf(listOf(other))
 
         // Then
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(DomainException.NameAlreadyTaken::class.java) {
             runBlocking { useCase(ingredient) }
         }
     }

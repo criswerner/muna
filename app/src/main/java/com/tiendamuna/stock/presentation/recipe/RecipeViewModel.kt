@@ -13,6 +13,7 @@ import com.tiendamuna.stock.domain.usecase.GetRecipesUseCase
 import com.tiendamuna.stock.domain.usecase.GetStockUseCase
 import com.tiendamuna.stock.domain.usecase.PrepareRecipeUseCase
 import com.tiendamuna.stock.domain.usecase.UpdateRecipeUseCase
+import com.tiendamuna.stock.presentation.common.mapper.ErrorMessageHelper
 import com.tiendamuna.stock.presentation.recipe.mapper.toUiModel
 import com.tiendamuna.stock.presentation.recipe.model.RecipeUiModel
 import com.tiendamuna.stock.presentation.stock.mapper.toUiModel
@@ -31,7 +32,8 @@ class RecipeViewModel(
     private val getStockUseCase: GetStockUseCase,
     private val updateRecipeUseCase: UpdateRecipeUseCase,
     private val deleteRecipeUseCase: DeleteRecipeUseCase,
-    private val addHistoryEntryUseCase: AddHistoryEntryUseCase
+    private val addHistoryEntryUseCase: AddHistoryEntryUseCase,
+    private val errorMessageHelper: ErrorMessageHelper
 ) : ViewModel() {
 
     private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
@@ -88,8 +90,9 @@ class RecipeViewModel(
                         } else {
                             updateRecipeUseCase(recipe)
                         }
+                        _error.value = null
                     } catch (e: Exception) {
-                        _error.value = e.message
+                        _error.value = errorMessageHelper.getMessage(e)
                     }
                 }
             }
@@ -98,7 +101,7 @@ class RecipeViewModel(
                     try {
                         prepareRecipeUseCase(event.recipe, event.batches)
                         
-                        // Calculate cost for history (based on current stock prices)
+                        // Calculate cost for history
                         val totalCost = event.recipe.ingredients.sumOf { ing ->
                             val stockItem = _stock.value.find { it.id == ing.ingredientId }
                             if (stockItem != null) {
@@ -121,8 +124,9 @@ class RecipeViewModel(
                                 totalCost = totalCost
                             )
                         )
+                        _error.value = null
                     } catch (e: Exception) {
-                        _error.value = e.message
+                        _error.value = errorMessageHelper.getMessage(e)
                     }
                 }
             }

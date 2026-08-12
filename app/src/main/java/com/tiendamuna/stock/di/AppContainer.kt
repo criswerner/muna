@@ -14,6 +14,7 @@ import com.tiendamuna.stock.data.datasource.remote.RemoteStockDataSource
 import com.tiendamuna.stock.data.service.IngredientIntegrityServiceImpl
 import com.tiendamuna.stock.data.service.RecipeIntegrityServiceImpl
 import com.tiendamuna.stock.domain.usecase.*
+import com.tiendamuna.stock.presentation.common.mapper.ErrorMessageHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,6 +39,9 @@ class AppContainer(context: Context) {
     private val remoteStockDataSource = RemoteStockDataSource(firestore)
     private val remoteRecipeDataSource = RemoteRecipeDataSource(firestore)
     private val remoteHistoryDataSource = RemoteHistoryDataSource(firestore)
+
+    // Helpers
+    val errorMessageHelper = ErrorMessageHelper(context)
 
     // Repositories
     val historyRepository = HistoryRepositoryImpl(

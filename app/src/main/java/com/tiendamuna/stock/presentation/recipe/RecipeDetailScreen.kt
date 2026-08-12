@@ -50,7 +50,7 @@ fun RecipeDetailScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
-            title = { Text(recipe?.name ?: "Detalle de Receta") },
+            title = { Text(recipe?.name ?: stringResource(R.string.title_recipe_detail)) },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cancel))
@@ -65,7 +65,7 @@ fun RecipeDetailScreen(
 
         if (recipe == null) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Receta no encontrada")
+                Text(stringResource(R.string.text_recipe_not_found))
             }
         } else {
             LazyColumn(
@@ -75,7 +75,7 @@ fun RecipeDetailScreen(
             ) {
                 item {
                     Text(
-                        text = "Rendimiento",
+                        text = stringResource(R.string.label_yield),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -88,7 +88,7 @@ fun RecipeDetailScreen(
 
                 item {
                     Text(
-                        text = "Ingredientes",
+                        text = stringResource(R.string.label_ingredients),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -102,7 +102,7 @@ fun RecipeDetailScreen(
                 item {
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
-                        text = "Preparación",
+                        text = stringResource(R.string.label_preparation),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -114,7 +114,7 @@ fun RecipeDetailScreen(
                         )
                     ) {
                         Text(
-                            text = if (recipe.instructions.isBlank()) "Sin instrucciones registradas" else recipe.instructions,
+                            text = if (recipe.instructions.isBlank()) stringResource(R.string.text_no_instructions) else recipe.instructions,
                             modifier = Modifier.padding(16.dp),
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -140,7 +140,7 @@ fun ReadOnlyIngredientRow(ingredient: RecipeIngredientUiModel) {
                 fontWeight = FontWeight.Medium
             )
             Text(
-                text = "Costo estimado: ${ingredient.costDisplay}",
+                text = stringResource(R.string.label_cost_estimated, ingredient.costDisplay),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.secondary
             )

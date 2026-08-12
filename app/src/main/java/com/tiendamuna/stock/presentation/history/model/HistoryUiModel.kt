@@ -6,7 +6,9 @@ import androidx.compose.runtime.Immutable
 data class HistoryUiModel(
     val id: String,
     val recipeName: String,
-    val preparationDetail: String, // e.g. "Preparado 2.5 lotes (30 u.)"
+    val batchesPrepared: String,
+    val totalProducedQuantity: String,
+    val yieldUnit: String,
     val costDisplay: String,
     val dateDisplay: String
 )

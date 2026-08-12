@@ -1,52 +1,42 @@
 package com.tiendamuna.stock.domain.usecase
 
+import com.tiendamuna.stock.domain.model.DomainException
 import com.tiendamuna.stock.domain.model.Recipe
 import com.tiendamuna.stock.domain.repository.StockRepository
 import com.tiendamuna.stock.domain.util.UnitConverter
 import kotlinx.coroutines.flow.first
 
-class PrepareRecipeUseCase(private val stockRepository: StockRepository) {
-    suspend operator fun invoke(recipe: Recipe, batches: Double = 1.0) {
-        if (batches <= 0) throw IllegalArgumentException("La cantidad de lotes debe ser mayor a 0")
+class PrepareRecipeUseCase(private val repository: StockRepository) {
+    suspend operator fun invoke(recipe: Recipe, batches: Double) {
+        if (batches <= 0) throw DomainException.InvalidQuantity
         
-        val currentStock = stockRepository.getStock().first()
+        val currentStock = repository.getStock().first()
         
-        // Check if all ingredients are available in sufficient quantity (with conversion and batch multiplier)
-        val missingIngredients = recipe.ingredients.filter { required ->
-            val stockItem = currentStock.find { it.id == required.ingredientId }
-            if (stockItem == null) return@filter true
+        // 1. Validar si hay stock suficiente para todos los ingredientes
+        recipe.ingredients.forEach { recipeIng ->
+            val stockItem = currentStock.find { it.id == recipeIng.ingredientId }
+            if (stockItem == null) throw DomainException.StockInsufficient
             
-            val totalNeededForBatches = required.quantityRequired * batches
-            
-            val convertedRequiredQuantity = UnitConverter.convert(
-                amount = totalNeededForBatches,
-                fromUnitSymbol = required.unit,
+            val neededAmount = UnitConverter.convert(
+                amount = recipeIng.quantityRequired * batches,
+                fromUnitSymbol = recipeIng.unit,
                 toUnitSymbol = stockItem.unit
             )
             
-            stockItem.quantity < convertedRequiredQuantity
+            if (stockItem.quantity < neededAmount) {
+                throw DomainException.StockInsufficient
+            }
         }
 
-        if (missingIngredients.isNotEmpty()) {
-            val details = missingIngredients.joinToString(", ") { it.name }
-            throw IllegalStateException("Stock insuficiente para preparar $batches lotes de '${recipe.name}'. Faltan: $details")
-        }
-
-        // Subtract from stock
-        recipe.ingredients.forEach { required ->
-            val stockItem = currentStock.find { it.id == required.ingredientId }!!
-            
-            val totalNeededForBatches = required.quantityRequired * batches
-
-            val convertedRequiredQuantity = UnitConverter.convert(
-                amount = totalNeededForBatches,
-                fromUnitSymbol = required.unit,
+        // 2. Restar del stock
+        recipe.ingredients.forEach { recipeIng ->
+            val stockItem = currentStock.find { it.id == recipeIng.ingredientId }!!
+            val amountToSubtract = UnitConverter.convert(
+                amount = recipeIng.quantityRequired * batches,
+                fromUnitSymbol = recipeIng.unit,
                 toUnitSymbol = stockItem.unit
             )
-            
-            stockRepository.updateIngredient(
-                stockItem.copy(quantity = stockItem.quantity - convertedRequiredQuantity)
-            )
+            repository.updateIngredient(stockItem.copy(quantity = stockItem.quantity - amountToSubtract))
         }
     }
 }

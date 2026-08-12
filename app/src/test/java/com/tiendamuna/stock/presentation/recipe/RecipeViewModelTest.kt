@@ -2,6 +2,8 @@ package com.tiendamuna.stock.presentation.recipe
 
 import com.tiendamuna.stock.domain.model.Recipe
 import com.tiendamuna.stock.domain.usecase.*
+import com.tiendamuna.stock.presentation.common.mapper.ErrorMessageHelper
+import io.mockk.every
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -28,6 +30,7 @@ class RecipeViewModelTest {
     private lateinit var updateRecipeUseCase: UpdateRecipeUseCase
     private lateinit var deleteRecipeUseCase: DeleteRecipeUseCase
     private lateinit var addHistoryEntryUseCase: AddHistoryEntryUseCase
+    private lateinit var errorMessageHelper: ErrorMessageHelper
     private lateinit var viewModel: RecipeViewModel
 
     @Before
@@ -41,6 +44,7 @@ class RecipeViewModelTest {
         updateRecipeUseCase = mockk(relaxed = true)
         deleteRecipeUseCase = mockk(relaxed = true)
         addHistoryEntryUseCase = mockk(relaxed = true)
+        errorMessageHelper = mockk(relaxed = true)
 
         viewModel = RecipeViewModel(
             getRecipesUseCase,
@@ -49,7 +53,8 @@ class RecipeViewModelTest {
             getStockUseCase,
             updateRecipeUseCase,
             deleteRecipeUseCase,
-            addHistoryEntryUseCase
+            addHistoryEntryUseCase,
+            errorMessageHelper
         )
     }
 
@@ -109,7 +114,10 @@ class RecipeViewModelTest {
     fun `when prepare recipe fails should update error state`() = runTest {
         // Given
         val errorMessage = "Stock insuficiente"
-        coEvery { prepareRecipeUseCase(any(), any()) } throws IllegalStateException(errorMessage)
+        val exception = IllegalStateException()
+        coEvery { prepareRecipeUseCase(any(), any()) } throws exception
+        every { errorMessageHelper.getMessage(exception) } returns errorMessage
+
         val recipe = Recipe(name = "Test", ingredients = emptyList())
 
         val collectJob = launch { viewModel.state.collect {} }
